@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
     <style>
         :root {
             --bg-dark: #090d16;
@@ -324,6 +325,26 @@
             cursor: pointer;
         }
 
+        .qr-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            margin-top: 10px;
+        }
+
+        .qr-box canvas {
+            width: 140px;
+            height: 140px;
+            border-radius: 6px;
+            border: 2px solid var(--accent-pink);
+            background-color: #ffffff;
+            margin-bottom: 10px;
+        }
+
         .canvas-area {
             display: flex;
             justify-content: center;
@@ -547,6 +568,18 @@
                 </div>
             </div>
 
+            <!-- Share & QR Code -->
+            <div class="control-section">
+                <div class="section-title" id="txt-sec-share">📱 Share Figure & QR Code</div>
+                <div class="qr-box">
+                    <canvas id="qr-canvas"></canvas>
+                    <div class="button-row" style="width: 100%;">
+                        <button id="btn-copy-url" class="btn-secondary">📋 Copy URL</button>
+                        <button id="btn-download-qr" class="btn-secondary">💾 QR Code PNG</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Instant Exports -->
             <div class="control-section">
                 <div class="section-title" id="txt-sec-export">💾 Instant Exports</div>
@@ -585,7 +618,7 @@
         </main>
     </div>
 
-    <!-- JAVASCRIPT WITH MULTI-LANGUAGE I18N DICTIONARY & LOCALSTORAGE PERSISTENCE -->
+    <!-- JAVASCRIPT WITH MULTI-LANGUAGE I18N DICTIONARY & QR CODE SHARING -->
     <script>
         const i18n = {
             EN: {
@@ -621,6 +654,10 @@
                 lbl_circle_op: "Circle Opacity",
                 lbl_line_op: "Chord Opacity",
                 lbl_line_w: "Chord Thickness",
+                sec_share: "📱 Share Figure & QR Code",
+                btn_copy_url: "📋 Copy URL",
+                btn_copied_url: "✅ Copied!",
+                btn_download_qr: "💾 QR Code PNG",
                 sec_export: "💾 Instant Exports",
                 btn_png: "📷 PNG Image",
                 btn_svg: "📐 SVG File",
@@ -664,6 +701,10 @@
                 lbl_circle_op: "Transparence du cercle",
                 lbl_line_op: "Transparence des cordes",
                 lbl_line_w: "Épaisseur des cordes",
+                sec_share: "📱 Partager la Figure & QR Code",
+                btn_copy_url: "📋 Copier l'URL",
+                btn_copied_url: "✅ Copié !",
+                btn_download_qr: "💾 QR Code PNG",
                 sec_export: "💾 Exportations Instantanées",
                 btn_png: "📷 Image PNG",
                 btn_svg: "📐 Fichier SVG",
@@ -707,6 +748,10 @@
                 lbl_circle_op: "Transparencia del círculo",
                 lbl_line_op: "Transparencia de cuerdas",
                 lbl_line_w: "Grosor de cuerdas",
+                sec_share: "📱 Compartir Figura y Código QR",
+                btn_copy_url: "📋 Copiar URL",
+                btn_copied_url: "✅ ¡Copiado!",
+                btn_download_qr: "💾 Código QR PNG",
                 sec_export: "💾 Exportaciones Instantáneas",
                 btn_png: "📷 Imagen PNG",
                 btn_svg: "📐 Archivo SVG",
@@ -750,6 +795,10 @@
                 lbl_circle_op: "Kreistransparenz",
                 lbl_line_op: "Sehnentransparenz",
                 lbl_line_w: "Sehnenstärke",
+                sec_share: "📱 Figur & QR-Code Teilen",
+                btn_copy_url: "📋 URL Kopieren",
+                btn_copied_url: "✅ Kopiert!",
+                btn_download_qr: "💾 QR-Code PNG",
                 sec_export: "💾 Sofortige Exporte",
                 btn_png: "📷 PNG-Bild",
                 btn_svg: "📐 SVG-Datei",
@@ -793,6 +842,10 @@
                 lbl_circle_op: "شفافية الدائرة",
                 lbl_line_op: "شفافية الأوتار",
                 lbl_line_w: "سُمك الأوتار",
+                sec_share: "📱 مشاركة الشكل والرمز QR",
+                btn_copy_url: "📋 نسخ الرابط",
+                btn_copied_url: "✅ تم النسخ!",
+                btn_download_qr: "💾 رمز QR PNG",
                 sec_export: "💾 التصدير الفوري",
                 btn_png: "📷 صورة PNG",
                 btn_svg: "📐 ملف SVG",
@@ -836,6 +889,10 @@
                 lbl_circle_op: "円の透明度",
                 lbl_line_op: "弦の透明度",
                 lbl_line_w: "弦の太さ",
+                sec_share: "📱 図形とQRコードを共有",
+                btn_copy_url: "📋 URLをコピー",
+                btn_copied_url: "✅ コピー完了！",
+                btn_download_qr: "💾 QRコード PNG",
                 sec_export: "💾 即時エクスポート",
                 btn_png: "📷 PNG画像",
                 btn_svg: "📐 SVGファイル",
@@ -879,6 +936,10 @@
                 lbl_circle_op: "圆不透明度",
                 lbl_line_op: "弦不透明度",
                 lbl_line_w: "弦粗细",
+                sec_share: "📱 分享图形与二维码",
+                btn_copy_url: "📋 复制链接",
+                btn_copied_url: "✅ 已复制！",
+                btn_download_qr: "💾 二维码 PNG",
                 sec_export: "💾 即时导出",
                 btn_png: "📷 PNG图片",
                 btn_svg: "📐 SVG矢量图",
@@ -934,6 +995,9 @@
             getElem('txt-lbl-circle-op').textContent = dict.lbl_circle_op;
             getElem('txt-lbl-line-op').textContent = dict.lbl_line_op;
             getElem('txt-lbl-line-w').textContent = dict.lbl_line_w;
+            getElem('txt-sec-share').textContent = dict.sec_share;
+            getElem('btn-copy-url').textContent = dict.btn_copy_url;
+            getElem('btn-download-qr').textContent = dict.btn_download_qr;
             getElem('txt-sec-export').textContent = dict.sec_export;
             getElem('btn-export-png').textContent = dict.btn_png;
             getElem('btn-export-svg').textContent = dict.btn_svg;
@@ -1032,6 +1096,10 @@
         const btnExportSvg = getElem('btn-export-svg');
         const btnRecordVideo = getElem('btn-record-video');
 
+        const qrCanvas = getElem('qr-canvas');
+        const btnCopyUrl = getElem('btn-copy-url');
+        const btnDownloadQr = getElem('btn-download-qr');
+
         // --- GLOBAL STATE ---
         const state = {
             table: 61.0,
@@ -1041,7 +1109,8 @@
             speed: 0.01,
             mediaRecorder: null,
             recordedChunks: [],
-            recordedExt: 'mp4'
+            recordedExt: 'mp4',
+            qrInstance: null
         };
 
         function syncTableMaxWithModulo() {
@@ -1049,6 +1118,108 @@
             if (rangeTable) {
                 rangeTable.max = currentModulo;
             }
+        }
+
+        // --- URL PARAMETER SERIALIZATION & SHARING ---
+        function generateShareUrl() {
+            const baseUrl = window.location.origin + window.location.pathname;
+            const params = new URLSearchParams();
+            params.set('t', Number.isInteger(state.table) ? state.table : state.table.toFixed(2));
+            params.set('m', Math.max(1, parseInt(inputModulo ? inputModulo.value : 540) || 540));
+            params.set('bg', (colorBg ? colorBg.value : '#0f172a').replace('#', ''));
+            params.set('cc', (colorCircle ? colorCircle.value : '#ffffff').replace('#', ''));
+            params.set('cl', (colorLine ? colorLine.value : '#ec4899').replace('#', ''));
+            params.set('cp', (colorPoint ? colorPoint.value : '#38bdf8').replace('#', ''));
+            params.set('ct', (colorText ? colorText.value : '#f8fafc').replace('#', ''));
+            params.set('cop', rangeCircleOpacity ? rangeCircleOpacity.value : '25');
+            params.set('lop', rangeOpacity ? rangeOpacity.value : '40');
+            params.set('lw', rangeLineWidth ? rangeLineWidth.value : '1.0');
+            params.set('c', checkCircle && checkCircle.checked ? '1' : '0');
+            params.set('p', checkPoints && checkPoints.checked ? '1' : '0');
+            params.set('l', checkLabels && checkLabels.checked ? '1' : '0');
+            params.set('title', checkTitle && checkTitle.checked ? '1' : '0');
+            params.set('step', inputLabelStep ? inputLabelStep.value : '10');
+            params.set('pos', selectTitlePos ? selectTitlePos.value : 'right');
+            return baseUrl + '?' + params.toString();
+        }
+
+        function updateQrCode() {
+            const shareUrl = generateShareUrl();
+            if (typeof QRious !== 'undefined' && qrCanvas) {
+                if (!state.qrInstance) {
+                    state.qrInstance = new QRious({
+                        element: qrCanvas,
+                        value: shareUrl,
+                        size: 200,
+                        background: '#ffffff',
+                        foreground: '#000000',
+                        level: 'H'
+                    });
+                } else {
+                    state.qrInstance.value = shareUrl;
+                }
+            }
+        }
+
+        function loadParametersFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            if (!params.has('t') && !params.has('m')) return;
+
+            if (params.has('t')) {
+                const t = parseFloat(params.get('t'));
+                if (!isNaN(t)) {
+                    state.table = t;
+                    if (inputTable) inputTable.value = t.toFixed(2);
+                    if (rangeTable) rangeTable.value = t;
+                }
+            }
+            if (params.has('m')) {
+                const m = parseInt(params.get('m'));
+                if (!isNaN(m)) {
+                    if (inputModulo) inputModulo.value = m;
+                    if (rangeModulo) rangeModulo.value = m;
+                }
+            }
+            if (params.has('bg') && colorBg) colorBg.value = '#' + params.get('bg');
+            if (params.has('cc') && colorCircle) colorCircle.value = '#' + params.get('cc');
+            if (params.has('cl') && colorLine) colorLine.value = '#' + params.get('cl');
+            if (params.has('cp') && colorPoint) colorPoint.value = '#' + params.get('cp');
+            if (params.has('ct') && colorText) colorText.value = '#' + params.get('ct');
+            if (params.has('cop') && rangeCircleOpacity) { rangeCircleOpacity.value = params.get('cop'); if (valCircleOpacity) valCircleOpacity.textContent = params.get('cop'); }
+            if (params.has('lop') && rangeOpacity) { rangeOpacity.value = params.get('lop'); if (valOpacity) valOpacity.textContent = params.get('lop'); }
+            if (params.has('lw') && rangeLineWidth) { rangeLineWidth.value = params.get('lw'); if (valLineWidth) valLineWidth.textContent = params.get('lw'); }
+            if (params.has('c') && checkCircle) checkCircle.checked = params.get('c') === '1';
+            if (params.has('p') && checkPoints) checkPoints.checked = params.get('p') === '1';
+            if (params.has('l') && checkLabels) checkLabels.checked = params.get('l') === '1';
+            if (params.has('title') && checkTitle) checkTitle.checked = params.get('title') === '1';
+            if (params.has('step') && inputLabelStep) inputLabelStep.value = params.get('step');
+            if (params.has('pos') && selectTitlePos) selectTitlePos.value = params.get('pos');
+            syncTableMaxWithModulo();
+        }
+
+        if (btnCopyUrl) {
+            btnCopyUrl.addEventListener('click', () => {
+                const shareUrl = generateShareUrl();
+                navigator.clipboard.writeText(shareUrl).then(() => {
+                    const dict = i18n[currentLang] || i18n.EN;
+                    btnCopyUrl.textContent = dict.btn_copied_url;
+                    setTimeout(() => {
+                        btnCopyUrl.textContent = dict.btn_copy_url;
+                    }, 2000);
+                });
+            });
+        }
+
+        if (btnDownloadQr) {
+            btnDownloadQr.addEventListener('click', () => {
+                if (!qrCanvas) return;
+                const tStr = Number.isInteger(state.table) ? state.table.toString() : state.table.toFixed(2);
+                const moduloVal = parseInt(inputModulo ? inputModulo.value : 540) || 540;
+                const a = document.createElement('a');
+                a.download = `qrcode_cardioid_table_${tStr}_modulo_${moduloVal}.png`;
+                a.href = qrCanvas.toDataURL('image/png');
+                a.click();
+            });
         }
 
         function render() {
@@ -1144,6 +1315,8 @@
                     ctx.fillText(titleStr, width - titleMargin, height - titleMargin);
                 }
             }
+
+            updateQrCode();
         }
 
         // --- ANIMATION LOOP (60 FPS) ---
@@ -1503,10 +1676,11 @@
             });
         }
 
-        // INITIALIZATION WITH LOCALSTORAGE PERSISTENCE
+        // INITIALIZATION WITH DEEP LINK PARAMETER PARSING & LOCALSTORAGE PERSISTENCE
         state.table = 61.0;
         state.speed = 0.01;
         syncTableMaxWithModulo();
+        loadParametersFromUrl();
         setLanguage(currentLang);
         render();
         requestAnimationFrame(animationLoop);
