@@ -1170,36 +1170,69 @@
             const params = new URLSearchParams(window.location.search);
             if (!params.has('t') && !params.has('m')) return;
 
-            if (params.has('t')) {
-                const t = parseFloat(params.get('t'));
-                if (!isNaN(t)) {
-                    state.table = t;
-                    if (inputTable) inputTable.value = t.toFixed(2);
-                    if (rangeTable) rangeTable.value = t;
-                }
-            }
+            // 1. Modulo d'abord pour ajuster max du slider table
             if (params.has('m')) {
                 const m = parseInt(params.get('m'));
-                if (!isNaN(m)) {
+                if (!isNaN(m) && m >= 10) {
                     if (inputModulo) inputModulo.value = m;
                     if (rangeModulo) rangeModulo.value = m;
                 }
             }
-            if (params.has('bg') && colorBg) colorBg.value = '#' + params.get('bg');
-            if (params.has('cc') && colorCircle) colorCircle.value = '#' + params.get('cc');
-            if (params.has('cl') && colorLine) colorLine.value = '#' + params.get('cl');
-            if (params.has('cp') && colorPoint) colorPoint.value = '#' + params.get('cp');
-            if (params.has('ct') && colorText) colorText.value = '#' + params.get('ct');
-            if (params.has('cop') && rangeCircleOpacity) { rangeCircleOpacity.value = params.get('cop'); if (valCircleOpacity) valCircleOpacity.textContent = params.get('cop'); }
-            if (params.has('lop') && rangeOpacity) { rangeOpacity.value = params.get('lop'); if (valOpacity) valOpacity.textContent = params.get('lop'); }
-            if (params.has('lw') && rangeLineWidth) { rangeLineWidth.value = params.get('lw'); if (valLineWidth) valLineWidth.textContent = params.get('lw'); }
+            syncTableMaxWithModulo();
+
+            // 2. Table
+            if (params.has('t')) {
+                const t = parseFloat(params.get('t'));
+                if (!isNaN(t)) {
+                    state.table = t;
+                    if (inputTable) inputTable.value = Number.isInteger(t) ? t.toString() : t.toFixed(2);
+                    if (rangeTable) rangeTable.value = t;
+                }
+            }
+
+            // 3. Couleurs
+            if (params.has('bg') && colorBg) {
+                let bg = params.get('bg');
+                colorBg.value = bg.startsWith('#') ? bg : '#' + bg;
+            }
+            if (params.has('cc') && colorCircle) {
+                let cc = params.get('cc');
+                colorCircle.value = cc.startsWith('#') ? cc : '#' + cc;
+            }
+            if (params.has('cl') && colorLine) {
+                let cl = params.get('cl');
+                colorLine.value = cl.startsWith('#') ? cl : '#' + cl;
+            }
+            if (params.has('cp') && colorPoint) {
+                let cp = params.get('cp');
+                colorPoint.value = cp.startsWith('#') ? cp : '#' + cp;
+            }
+            if (params.has('ct') && colorText) {
+                let ct = params.get('ct');
+                colorText.value = ct.startsWith('#') ? ct : '#' + ct;
+            }
+
+            // 4. Opacités & Épaisseurs
+            if (params.has('cop') && rangeCircleOpacity) { 
+                rangeCircleOpacity.value = params.get('cop'); 
+                if (valCircleOpacity) valCircleOpacity.textContent = params.get('cop'); 
+            }
+            if (params.has('lop') && rangeOpacity) { 
+                rangeOpacity.value = params.get('lop'); 
+                if (valOpacity) valOpacity.textContent = params.get('lop'); 
+            }
+            if (params.has('lw') && rangeLineWidth) { 
+                rangeLineWidth.value = params.get('lw'); 
+                if (valLineWidth) valLineWidth.textContent = params.get('lw'); 
+            }
+
+            // 5. Bascules
             if (params.has('c') && checkCircle) checkCircle.checked = params.get('c') === '1';
             if (params.has('p') && checkPoints) checkPoints.checked = params.get('p') === '1';
             if (params.has('l') && checkLabels) checkLabels.checked = params.get('l') === '1';
             if (params.has('title') && checkTitle) checkTitle.checked = params.get('title') === '1';
             if (params.has('step') && inputLabelStep) inputLabelStep.value = params.get('step');
             if (params.has('pos') && selectTitlePos) selectTitlePos.value = params.get('pos');
-            syncTableMaxWithModulo();
         }
 
         if (btnCopyUrl) {

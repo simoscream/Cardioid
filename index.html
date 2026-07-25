@@ -1,11 +1,15 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="refresh" content="0; url=web/index.html">
-    <title>Cardioid — Redirection vers l'Application Web</title>
+    <title>Redirecting to Cardioid App...</title>
+    <script>
+        // Forward URL query parameters to web/index.html
+        window.location.href = "web/index.html" + window.location.search + window.location.hash;
+    </script>
 </head>
 <body>
-    <p>Redirection en cours vers l'application <a href="web/index.html">Cardioid Web Application</a>...</p>
+    <p>Redirecting to <a href="web/index.html">Cardioid Web Application</a>...</p>
 </body>
 </html>
