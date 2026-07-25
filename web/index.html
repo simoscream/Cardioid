@@ -1167,7 +1167,11 @@
         }
 
         function loadParametersFromUrl() {
-            const params = new URLSearchParams(window.location.search);
+            let searchStr = window.location.search;
+            if ((!searchStr || searchStr.length <= 1) && window.location.hash) {
+                searchStr = '?' + window.location.hash.replace(/^#\/?\??/, '');
+            }
+            const params = new URLSearchParams(searchStr);
             if (!params.has('t') && !params.has('m')) return;
 
             // 1. Modulo d'abord pour ajuster max du slider table

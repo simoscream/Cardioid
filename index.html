@@ -2,14 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0; url=web/index.html">
-    <title>Redirecting to Cardioid App...</title>
+    <title>Cardioid — Redirecting...</title>
     <script>
-        // Forward URL query parameters to web/index.html
-        window.location.href = "web/index.html" + window.location.search + window.location.hash;
+        // Immediately redirect to web/index.html while preserving all URL search parameters and hashes
+        var targetUrl = "web/index.html" + window.location.search + window.location.hash;
+        window.location.replace(targetUrl);
     </script>
 </head>
 <body>
-    <p>Redirecting to <a href="web/index.html">Cardioid Web Application</a>...</p>
+    <p>Redirecting to <a id="redirect-link" href="web/index.html">Cardioid Web Application</a>...</p>
+    <script>
+        document.getElementById('redirect-link').href = targetUrl;
+    </script>
 </body>
 </html>
