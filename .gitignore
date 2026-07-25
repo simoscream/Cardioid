@@ -1,5 +1,7 @@
-# Ignorer les résultats de génération et les caches Python
-output/
+# Workspace & AGY CLI metadata
+.agents/
+.gemini/
 __pycache__/
 *.pyc
 .pytest_cache/
+output/
