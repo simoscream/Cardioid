@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardioid — Interactive Geometric Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --panel-bg: #111827;
+            --card-bg: #1f293d;
+            --accent-pink: #ec4899;
+            --accent-sky: #38bdf8;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.5;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-sky);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-sky) 50%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .lang-select-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        .lang-select-box label {
+            margin-bottom: 0;
+            font-size: 1.1rem;
+        }
+
+        #select-lang {
+            background: transparent;
+            border: none;
+            color: var(--accent-sky);
+            font-weight: 600;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            width: auto;
+            padding: 4px;
+        }
+
+        #select-lang option {
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: border-color 0.2s, background-color 0.2s;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-sky);
+            background-color: rgba(56, 189, 248, 0.1);
+        }
+
+        .app-layout {
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 20px;
+            align-items: start;
+        }
+
+        @media (max-width: 1000px) {
+            .app-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .sidebar {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: calc(100vh - 100px);
+            overflow-y: auto;
+        }
+
+        .control-section {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--accent-sky);
+            margin-bottom: 12px;
+        }
+
+        .button-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-pink) 0%, #be185d 100%);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.1s, filter 0.2s;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-accent {
+            background: linear-gradient(135deg, var(--accent-sky) 0%, #0284c7 100%);
+            color: #000;
+            font-weight: 600;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: filter 0.2s;
+        }
+
+        .btn-accent:hover {
+            filter: brightness(1.1);
+        }
+
+        .btn-record {
+            width: 100%;
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            color: #fff;
+            font-weight: 600;
+            border: none;
+            padding: 11px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: filter 0.2s;
+        }
+
+        .btn-record.recording {
+            background: linear-gradient(135deg, var(--accent-red) 0%, #991b1b 100%);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-group-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            accent-color: var(--accent-pink);
+            cursor: pointer;
+        }
+
+        .range-container input[type="number"] {
+            width: 75px;
+        }
+
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .checkbox-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            cursor: pointer;
+        }
+
+        .checkbox-card input[type="checkbox"] {
+            accent-color: var(--accent-pink);
+            cursor: pointer;
+        }
+
+        .colors-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 6px;
+        }
+
+        .color-picker-item {
+            text-align: center;
+        }
+
+        .color-picker-item label {
+            font-size: 0.72rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 32px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .canvas-area {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .canvas-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            width: 100%;
+            max-width: 840px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .live-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+        }
+
+        .status-dot.playing {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .status-dot.recording {
+            background-color: var(--accent-red);
+            box-shadow: 0 0 10px var(--accent-red);
+            animation: pulse-red 1.5s infinite;
+        }
+
+        .fps-badge {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem;
+            background-color: var(--bg-dark);
+            color: var(--accent-sky);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .canvas-container {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background-color: #0f172a;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-header">
+        <div class="logo-area">
+            <span class="badge" id="txt-badge">Modular Arithmetic</span>
+            <h1 id="txt-app-title">Cardioid — Real-Time Geometric Visualizer</h1>
+        </div>
+        <div class="header-actions">
+            <!-- Language Selector -->
+            <div class="lang-select-box">
+                <label for="select-lang">🌐</label>
+                <select id="select-lang">
+                    <option value="EN">EN - English</option>
+                    <option value="FR">FR - Français</option>
+                    <option value="ES">ES - Español</option>
+                    <option value="DE">DE - Deutsch</option>
+                    <option value="AR">AR - العربية</option>
+                    <option value="JP">JP - 日本語</option>
+                    <option value="CN">CN - 中文</option>
+                </select>
+            </div>
+            <a href="../docs/educational.html" class="btn-secondary" id="txt-link-edu">🎓 Educational Guide</a>
+            <a href="../docs/manual.html" target="_blank" class="btn-secondary" id="txt-link-manual">📖 Manual & CLI</a>
+            <a href="../output/reports/rapport_tests.html" target="_blank" class="btn-secondary" id="txt-link-tests">🧪 Test Report</a>
+        </div>
+    </div>
+
+    <div class="app-layout">
+        <!-- Sidebar Controls -->
+        <aside class="sidebar">
+            
+            <!-- Section Animation -->
+            <div class="control-section">
+                <div class="section-title" id="txt-sec-anim">🎬 Real-Time Animation</div>
+                <div class="button-row">
+                    <button id="btn-play" class="btn-primary">▶ Play</button>
+                    <button id="btn-reset" class="btn-secondary">🔄 Reset</button>
+                </div>
+                <div class="form-group" style="margin-top: 12px;">
+                    <label for="range-speed"><span id="txt-lbl-speed">Animation Speed</span> (<span id="val-speed">0.010</span> / frame)</label>
+                    <input type="range" id="range-speed" min="0.001" max="0.1" step="0.005" value="0.01">
+                </div>
+            </div>
+
+            <!-- Mathematical Parameters -->
+            <div class="control-section">
+                <div class="section-title" id="txt-sec-math">📐 Mathematical Parameters</div>
+                
+                <div class="form-group">
+                    <label for="input-table" id="txt-lbl-table">Table (Multiplier n)</label>
+                    <div class="range-container">
+                        <input type="range" id="range-table" min="1" max="540" step="0.01" value="61">
+                        <input type="number" id="input-table" value="61.00" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="input-modulo" id="txt-lbl-modulo">Modulo m (Number of points)</label>
+                    <div class="range-container">
+                        <input type="range" id="range-modulo" min="10" max="1000" step="10" value="540">
+                        <input type="number" id="input-modulo" value="540" step="1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Visual Elements -->
+            <div class="control-section">
+                <div class="section-title" id="txt-sec-visuals">👁️ Visual Elements</div>
+                <div class="checkbox-grid">
+                    <label class="checkbox-card">
+                        <input type="checkbox" id="check-circle" checked>
+                        <span id="txt-lbl-circle">Circle</span>
+                    </label>
+                    <label class="checkbox-card">
+                        <input type="checkbox" id="check-points" checked>
+                        <span id="txt-lbl-points">Points</span>
+                    </label>
+                    <label class="checkbox-card">
+                        <input type="checkbox" id="check-labels" checked>
+                        <span id="txt-lbl-labels">Numbers</span>
+                    </label>
+                    <label class="checkbox-card">
+                        <input type="checkbox" id="check-title" checked>
+                        <span id="txt-lbl-title">Title</span>
+                    </label>
+                </div>
+
+                <div class="form-group-row" style="margin-top: 12px;">
+                    <div class="form-group">
+                        <label for="input-label-step" id="txt-lbl-step">Number Interval</label>
+                        <input type="number" id="input-label-step" value="10" min="1" step="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="select-title-pos" id="txt-lbl-pos">Title Position</label>
+                        <select id="select-title-pos">
+                            <option value="right" id="opt-pos-right">Bottom Right</option>
+                            <option value="left" id="opt-pos-left">Bottom Left</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Customization -->
+            <div class="control-section">
+                <div class="section-title" id="txt-sec-colors">🎨 Color Customization</div>
+                
+                <div class="colors-grid">
+                    <div class="color-picker-item">
+                        <label for="color-bg" id="txt-color-bg">Background</label>
+                        <input type="color" id="color-bg" value="#0f172a">
+                    </div>
+                    <div class="color-picker-item">
+                        <label for="color-circle" id="txt-color-circle">Circle</label>
+                        <input type="color" id="color-circle" value="#ffffff">
+                    </div>
+                    <div class="color-picker-item">
+                        <label for="color-line" id="txt-color-line">Chords</label>
+                        <input type="color" id="color-line" value="#ec4899">
+                    </div>
+                    <div class="color-picker-item">
+                        <label for="color-point" id="txt-color-point">Points</label>
+                        <input type="color" id="color-point" value="#38bdf8">
+                    </div>
+                    <div class="color-picker-item">
+                        <label for="color-text" id="txt-color-text">Text</label>
+                        <input type="color" id="color-text" value="#f8fafc">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 12px;">
+                    <label for="range-circle-opacity"><span id="txt-lbl-circle-op">Circle Opacity</span> (<span id="val-circle-opacity">25</span>%)</label>
+                    <input type="range" id="range-circle-opacity" min="0" max="100" step="5" value="25">
+                </div>
+
+                <div class="form-group">
+                    <label for="range-opacity"><span id="txt-lbl-line-op">Chord Opacity</span> (<span id="val-opacity">40</span>%)</label>
+                    <input type="range" id="range-opacity" min="5" max="100" step="5" value="40">
+                </div>
+
+                <div class="form-group">
+                    <label for="range-linewidth"><span id="txt-lbl-line-w">Chord Thickness</span> (<span id="val-linewidth">1.0</span> px)</label>
+                    <input type="range" id="range-linewidth" min="0.5" max="5.0" step="0.5" value="1.0">
+                </div>
+            </div>
+
+            <!-- Instant Exports -->
+            <div class="control-section">
+                <div class="section-title" id="txt-sec-export">💾 Instant Exports</div>
+                <div class="button-row" style="margin-bottom: 10px;">
+                    <button id="btn-export-png" class="btn-accent">📷 PNG Image</button>
+                    <button id="btn-export-svg" class="btn-accent">📐 SVG File</button>
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 10px;">
+                    <label for="select-video-format" id="txt-lbl-video-fmt">Export Video Format</label>
+                    <select id="select-video-format">
+                        <option value="mp4">MP4 (Standard H.264 / QuickTime / Web)</option>
+                        <option value="webm">WebM (Format VP9 Native Web)</option>
+                    </select>
+                </div>
+
+                <button id="btn-record-video" class="btn-record">🎥 Record Video</button>
+            </div>
+
+        </aside>
+
+        <!-- Canvas Display Area -->
+        <main class="canvas-area">
+            <div class="canvas-card">
+                <div class="canvas-header">
+                    <div class="live-info">
+                        <span class="status-dot" id="status-dot"></span>
+                        <span id="txt-status">Animation paused</span>
+                    </div>
+                    <div class="fps-badge" id="txt-fps">60 FPS</div>
+                </div>
+                <div class="canvas-container">
+                    <canvas id="main-canvas" width="800" height="800"></canvas>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- JAVASCRIPT WITH MULTI-LANGUAGE I18N DICTIONARY & LOCALSTORAGE PERSISTENCE -->
+    <script>
+        const i18n = {
+            EN: {
+                badge: "Modular Arithmetic",
+                app_title: "Cardioid — Real-Time Geometric Visualizer",
+                link_edu: "🎓 Educational Guide",
+                link_manual: "📖 Manual & CLI",
+                link_tests: "🧪 Test Report",
+                sec_anim: "🎬 Real-Time Animation",
+                play: "▶ Play",
+                pause: "⏸ Pause",
+                reset: "🔄 Reset",
+                lbl_speed: "Animation Speed",
+                sec_math: "📐 Mathematical Parameters",
+                lbl_table: "Table (Multiplier n)",
+                lbl_modulo: "Modulo m (Number of points)",
+                sec_visuals: "👁️ Visual Elements",
+                circle: "Circle",
+                points: "Points",
+                labels: "Numbers",
+                title: "Title",
+                lbl_step: "Number Interval",
+                lbl_pos: "Title Position",
+                pos_right: "Bottom Right",
+                pos_left: "Bottom Left",
+                sec_colors: "🎨 Color Customization",
+                color_bg: "Background",
+                color_circle: "Circle",
+                color_line: "Chords",
+                color_point: "Points",
+                color_text: "Text",
+                lbl_circle_op: "Circle Opacity",
+                lbl_line_op: "Chord Opacity",
+                lbl_line_w: "Chord Thickness",
+                sec_export: "💾 Instant Exports",
+                btn_png: "📷 PNG Image",
+                btn_svg: "📐 SVG File",
+                lbl_video_fmt: "Export Video Format",
+                btn_record: "🎥 Record Video",
+                btn_stop_record: "🔴 Stop & Download",
+                status_paused: "Animation paused",
+                status_active: "Animation active (60 FPS)",
+                status_recording: "Video recording in progress..."
+            },
+            FR: {
+                badge: "Arithmétique Modulaire",
+                app_title: "Cardioid — Visualisateur Géométrique Temps Réel",
+                link_edu: "🎓 Guide Pédagogique",
+                link_manual: "📖 Manuel & CLI",
+                link_tests: "🧪 Rapport de Tests",
+                sec_anim: "🎬 Animation en Temps Réel",
+                play: "▶ Lecture",
+                pause: "⏸ Pause",
+                reset: "🔄 Réinitialiser",
+                lbl_speed: "Vitesse d'animation",
+                sec_math: "📐 Paramètres Mathématiques",
+                lbl_table: "Table (Multiplicateur n)",
+                lbl_modulo: "Modulo m (Nombre de points)",
+                sec_visuals: "👁️ Éléments Visuels",
+                circle: "Cercle",
+                points: "Points",
+                labels: "Numéros",
+                title: "Titre",
+                lbl_step: "Intervalle Numéros",
+                lbl_pos: "Position Titre",
+                pos_right: "Bas Droite",
+                pos_left: "Bas Gauche",
+                sec_colors: "🎨 Personnalisation des Couleurs",
+                color_bg: "Fond",
+                color_circle: "Cercle",
+                color_line: "Cordes",
+                color_point: "Points",
+                color_text: "Texte",
+                lbl_circle_op: "Transparence du cercle",
+                lbl_line_op: "Transparence des cordes",
+                lbl_line_w: "Épaisseur des cordes",
+                sec_export: "💾 Exportations Instantanées",
+                btn_png: "📷 Image PNG",
+                btn_svg: "📐 Fichier SVG",
+                lbl_video_fmt: "Format Vidéo Export",
+                btn_record: "🎥 Enregistrer Vidéo",
+                btn_stop_record: "🔴 Arrêter & Télécharger",
+                status_paused: "Animation en pause",
+                status_active: "Animation active (60 FPS)",
+                status_recording: "Enregistrement vidéo en cours..."
+            },
+            ES: {
+                badge: "Aritmética Modular",
+                app_title: "Cardioid — Visualizador Geométrico en Tiempo Real",
+                link_edu: "🎓 Guía Educativa",
+                link_manual: "📖 Manual y CLI",
+                link_tests: "🧪 Reporte de Pruebas",
+                sec_anim: "🎬 Animación en Tiempo Real",
+                play: "▶ Reproducir",
+                pause: "⏸ Pausa",
+                reset: "🔄 Restablecer",
+                lbl_speed: "Velocidad de animación",
+                sec_math: "📐 Parámetros Matemáticos",
+                lbl_table: "Tabla (Multiplicador n)",
+                lbl_modulo: "Módulo m (Número de puntos)",
+                sec_visuals: "👁️ Elementos Visuales",
+                circle: "Círculo",
+                points: "Puntos",
+                labels: "Números",
+                title: "Título",
+                lbl_step: "Intervalo de Números",
+                lbl_pos: "Posición Título",
+                pos_right: "Abajo Derecha",
+                pos_left: "Abajo Izquierda",
+                sec_colors: "🎨 Personalización de Colores",
+                color_bg: "Fondo",
+                color_circle: "Círculo",
+                color_line: "Cuerdas",
+                color_point: "Puntos",
+                color_text: "Texto",
+                lbl_circle_op: "Transparencia del círculo",
+                lbl_line_op: "Transparencia de cuerdas",
+                lbl_line_w: "Grosor de cuerdas",
+                sec_export: "💾 Exportaciones Instantáneas",
+                btn_png: "📷 Imagen PNG",
+                btn_svg: "📐 Archivo SVG",
+                lbl_video_fmt: "Formato de Video Export",
+                btn_record: "🎥 Grabar Video",
+                btn_stop_record: "🔴 Detener y Descargar",
+                status_paused: "Animación en pausa",
+                status_active: "Animación activa (60 FPS)",
+                status_recording: "Grabación de video en curso..."
+            },
+            DE: {
+                badge: "Modulare Arithmetik",
+                app_title: "Cardioid — Echtzeit Geometrie-Visualisierer",
+                link_edu: "🎓 Bildungsführer",
+                link_manual: "📖 Handbuch & CLI",
+                link_tests: "🧪 Testbericht",
+                sec_anim: "🎬 Echtzeit-Animation",
+                play: "▶ Abspielen",
+                pause: "⏸ Pause",
+                reset: "🔄 Zurücksetzen",
+                lbl_speed: "Animationsgeschwindigkeit",
+                sec_math: "📐 Mathematische Parameter",
+                lbl_table: "Tabelle (Multiplikator n)",
+                lbl_modulo: "Modulo m (Anzahl der Punkte)",
+                sec_visuals: "👁️ Visuelle Elemente",
+                circle: "Kreis",
+                points: "Punkte",
+                labels: "Zahlen",
+                title: "Titel",
+                lbl_step: "Zahlenintervall",
+                lbl_pos: "Titelposition",
+                pos_right: "Unten Rechts",
+                pos_left: "Unten Links",
+                sec_colors: "🎨 Farbanpassung",
+                color_bg: "Hintergrund",
+                color_circle: "Kreis",
+                color_line: "Sehnen",
+                color_point: "Punkte",
+                color_text: "Text",
+                lbl_circle_op: "Kreistransparenz",
+                lbl_line_op: "Sehnentransparenz",
+                lbl_line_w: "Sehnenstärke",
+                sec_export: "💾 Sofortige Exporte",
+                btn_png: "📷 PNG-Bild",
+                btn_svg: "📐 SVG-Datei",
+                lbl_video_fmt: "Export-Videoformat",
+                btn_record: "🎥 Video Aufnehmen",
+                btn_stop_record: "🔴 Stoppen & Herunterladen",
+                status_paused: "Animation pausiert",
+                status_active: "Animation aktiv (60 FPS)",
+                status_recording: "Videoaufnahme läuft..."
+            },
+            AR: {
+                badge: "الحساب النمطي",
+                app_title: "Cardioid — تصور هندسي في الوقت الفعلي",
+                link_edu: "🎓 الدليل التعليمي",
+                link_manual: "📖 الدليل والأوامر",
+                link_tests: "🧪 تقرير الاختبارات",
+                sec_anim: "🎬 الرسوم المتحركة في الوقت الفعلي",
+                play: "▶ تشغيل",
+                pause: "⏸ إيقاف مؤقت",
+                reset: "🔄 إعادة ضبط",
+                lbl_speed: "سرعة الحركة",
+                sec_math: "📐 المعلمات الرياضية",
+                lbl_table: "الجدول (المضاعف n)",
+                lbl_modulo: "النموذج m (عدد النقاط)",
+                sec_visuals: "👁️ العناصر البصرية",
+                circle: "دائرة",
+                points: "نقاط",
+                labels: "أرقام",
+                title: "عنوان",
+                lbl_step: "فاصل الأرقام",
+                lbl_pos: "موقع العنوان",
+                pos_right: "أسفل اليمين",
+                pos_left: "أسفل اليسار",
+                sec_colors: "🎨 تخصيص الألوان",
+                color_bg: "الخلفية",
+                color_circle: "الدائرة",
+                color_line: "الأوتار",
+                color_point: "النقاط",
+                color_text: "النص",
+                lbl_circle_op: "شفافية الدائرة",
+                lbl_line_op: "شفافية الأوتار",
+                lbl_line_w: "سُمك الأوتار",
+                sec_export: "💾 التصدير الفوري",
+                btn_png: "📷 صورة PNG",
+                btn_svg: "📐 ملف SVG",
+                lbl_video_fmt: "تنسيق تصدير الفيديو",
+                btn_record: "🎥 تسجيل الفيديو",
+                btn_stop_record: "🔴 إيقاف وتحميل",
+                status_paused: "الرسوم المتحركة متوقفة",
+                status_active: "الرسوم المتحركة نشطة (60 FPS)",
+                status_recording: "جارٍ تسجيل الفيديو..."
+            },
+            JP: {
+                badge: "モジュラー算術",
+                app_title: "Cardioid — リアルタイム幾何学ビジュアライザー",
+                link_edu: "🎓 学習ガイド",
+                link_manual: "📖 マニュアル & CLI",
+                link_tests: "🧪 テストレポート",
+                sec_anim: "🎬 リアルタイムアニメーション",
+                play: "▶ 再生",
+                pause: "⏸ 一時停止",
+                reset: "🔄 リセット",
+                lbl_speed: "アニメーション速度",
+                sec_math: "📐 数学的パラメーター",
+                lbl_table: "掛け算表 (乗数 n)",
+                lbl_modulo: "モジュロ m (点の数)",
+                sec_visuals: "👁️ 視覚的要素",
+                circle: "円",
+                points: "点",
+                labels: "番号",
+                title: "タイトル",
+                lbl_step: "番号の間隔",
+                lbl_pos: "タイトルの位置",
+                pos_right: "右下",
+                pos_left: "左下",
+                sec_colors: "🎨 色のカスタマイズ",
+                color_bg: "背景",
+                color_circle: "円",
+                color_line: "弦",
+                color_point: "点",
+                color_text: "テキスト",
+                lbl_circle_op: "円の透明度",
+                lbl_line_op: "弦の透明度",
+                lbl_line_w: "弦の太さ",
+                sec_export: "💾 即時エクスポート",
+                btn_png: "📷 PNG画像",
+                btn_svg: "📐 SVGファイル",
+                lbl_video_fmt: "動画のエクスポート形式",
+                btn_record: "🎥 録画を開始",
+                btn_stop_record: "🔴 停止してダウンロード",
+                status_paused: "アニメーション一時停止中",
+                status_active: "アニメーション再生中 (60 FPS)",
+                status_recording: "動画録画中..."
+            },
+            CN: {
+                badge: "模算术",
+                app_title: "Cardioid — 实时几何可视化工具",
+                link_edu: "🎓 原理教学指南",
+                link_manual: "📖 使用手册 & CLI",
+                link_tests: "🧪 测试报告",
+                sec_anim: "🎬 实时动画",
+                play: "▶ 播放",
+                pause: "⏸ 暂停",
+                reset: "🔄 重置",
+                lbl_speed: "动画速度",
+                sec_math: "📐 数学参数",
+                lbl_table: "乘法表 (乘数 n)",
+                lbl_modulo: "模数 m (点数)",
+                sec_visuals: "👁️ 视觉元素",
+                circle: "圆",
+                points: "点",
+                labels: "数字",
+                title: "标题",
+                lbl_step: "数字间隔",
+                lbl_pos: "标题位置",
+                pos_right: "右下",
+                pos_left: "左下",
+                sec_colors: "🎨 颜色自定义",
+                color_bg: "背景",
+                color_circle: "圆",
+                color_line: "弦",
+                color_point: "点",
+                color_text: "文本",
+                lbl_circle_op: "圆不透明度",
+                lbl_line_op: "弦不透明度",
+                lbl_line_w: "弦粗细",
+                sec_export: "💾 即时导出",
+                btn_png: "📷 PNG图片",
+                btn_svg: "📐 SVG矢量图",
+                lbl_video_fmt: "导出视频格式",
+                btn_record: "🎥 录制视频",
+                btn_stop_record: "🔴 停止并下载",
+                status_paused: "动画已暂停",
+                status_active: "动画播放中 (60 FPS)",
+                status_recording: "视频录制中..."
+            }
+        };
+
+        let currentLang = localStorage.getItem('cardioid_lang') || "EN";
+
+        function setLanguage(lang) {
+            if (!i18n[lang]) lang = "EN";
+            currentLang = lang;
+            localStorage.setItem('cardioid_lang', lang);
+            const dict = i18n[lang];
+
+            document.documentElement.dir = (lang === "AR") ? "rtl" : "ltr";
+            document.documentElement.lang = lang.toLowerCase();
+
+            if (selectLang) selectLang.value = lang;
+
+            getElem('txt-badge').textContent = dict.badge;
+            getElem('txt-app-title').textContent = dict.app_title;
+            getElem('txt-link-edu').textContent = dict.link_edu;
+            getElem('txt-link-manual').textContent = dict.link_manual;
+            getElem('txt-link-tests').textContent = dict.link_tests;
+            getElem('txt-sec-anim').textContent = dict.sec_anim;
+            getElem('btn-reset').textContent = dict.reset;
+            getElem('txt-lbl-speed').textContent = dict.lbl_speed;
+            getElem('txt-sec-math').textContent = dict.sec_math;
+            getElem('txt-lbl-table').textContent = dict.lbl_table;
+            getElem('txt-lbl-modulo').textContent = dict.lbl_modulo;
+            getElem('txt-sec-visuals').textContent = dict.sec_visuals;
+            getElem('txt-lbl-circle').textContent = dict.circle;
+            getElem('txt-lbl-points').textContent = dict.points;
+            getElem('txt-lbl-labels').textContent = dict.labels;
+            getElem('txt-lbl-title').textContent = dict.title;
+            getElem('txt-lbl-step').textContent = dict.lbl_step;
+            getElem('txt-lbl-pos').textContent = dict.lbl_pos;
+            getElem('opt-pos-right').textContent = dict.pos_right;
+            getElem('opt-pos-left').textContent = dict.pos_left;
+            getElem('txt-sec-colors').textContent = dict.sec_colors;
+            getElem('txt-color-bg').textContent = dict.color_bg;
+            getElem('txt-color-circle').textContent = dict.color_circle;
+            getElem('txt-color-line').textContent = dict.color_line;
+            getElem('txt-color-point').textContent = dict.color_point;
+            getElem('txt-color-text').textContent = dict.color_text;
+            getElem('txt-lbl-circle-op').textContent = dict.lbl_circle_op;
+            getElem('txt-lbl-line-op').textContent = dict.lbl_line_op;
+            getElem('txt-lbl-line-w').textContent = dict.lbl_line_w;
+            getElem('txt-sec-export').textContent = dict.sec_export;
+            getElem('btn-export-png').textContent = dict.btn_png;
+            getElem('btn-export-svg').textContent = dict.btn_svg;
+            getElem('txt-lbl-video-fmt').textContent = dict.lbl_video_fmt;
+
+            if (state.isPlaying) {
+                btnPlay.textContent = dict.pause;
+                if (!state.isRecording && txtStatus) txtStatus.textContent = dict.status_active;
+            } else {
+                btnPlay.textContent = dict.play;
+                if (!state.isRecording && txtStatus) txtStatus.textContent = dict.status_paused;
+            }
+
+            if (state.isRecording) {
+                btnRecordVideo.textContent = dict.btn_stop_record + " (" + state.recordedExt.toUpperCase() + ")";
+                if (txtStatus) txtStatus.textContent = dict.status_recording;
+            } else {
+                btnRecordVideo.textContent = dict.btn_record;
+            }
+        }
+
+        // --- MATH ENGINE ---
+        function getPointAngle(index, modulo) {
+            return -Math.PI / 2.0 + (2.0 * Math.PI * index) / modulo;
+        }
+
+        function getPointCoords(index, modulo, cx, cy, radius) {
+            const angle = getPointAngle(index, modulo);
+            return {
+                x: cx + radius * Math.cos(angle),
+                y: cy + radius * Math.sin(angle)
+            };
+        }
+
+        function computeDestination(index, table, modulo) {
+            return (table * index) % modulo;
+        }
+
+        function hexToRgba(hex, opacityPercent) {
+            if (!hex) return 'rgba(255, 255, 255, 1)';
+            hex = hex.replace('#', '');
+            if (hex.length === 3) {
+                hex = hex.split('').map(c => c + c).join('');
+            }
+            const r = parseInt(hex.substring(0, 2), 16) || 0;
+            const g = parseInt(hex.substring(2, 4), 16) || 0;
+            const b = parseInt(hex.substring(4, 6), 16) || 0;
+            const opacity = (opacityPercent !== undefined ? opacityPercent : 100) / 100;
+            return `rgba(${r}, ${g}, ${b}, ${opacity.toFixed(2)})`;
+        }
+
+        function getElem(id) {
+            return document.getElementById(id);
+        }
+
+        const canvas = getElem('main-canvas');
+        const ctx = canvas ? canvas.getContext('2d') : null;
+
+        const rangeTable = getElem('range-table');
+        const inputTable = getElem('input-table');
+        const rangeModulo = getElem('range-modulo');
+        const inputModulo = getElem('input-modulo');
+
+        const checkCircle = getElem('check-circle');
+        const checkPoints = getElem('check-points');
+        const checkLabels = getElem('check-labels');
+        const checkTitle = getElem('check-title');
+        const inputLabelStep = getElem('input-label-step');
+        const selectTitlePos = getElem('select-title-pos');
+
+        const colorBg = getElem('color-bg');
+        const colorCircle = getElem('color-circle');
+        const colorLine = getElem('color-line');
+        const colorPoint = getElem('color-point');
+        const colorText = getElem('color-text');
+
+        const rangeCircleOpacity = getElem('range-circle-opacity');
+        const valCircleOpacity = getElem('val-circle-opacity');
+        const rangeOpacity = getElem('range-opacity');
+        const valOpacity = getElem('val-opacity');
+        const rangeLineWidth = getElem('range-linewidth');
+        const valLineWidth = getElem('val-linewidth');
+
+        const btnPlay = getElem('btn-play');
+        const btnReset = getElem('btn-reset');
+        const rangeSpeed = getElem('range-speed');
+        const valSpeed = getElem('val-speed');
+
+        const statusDot = getElem('status-dot');
+        const txtStatus = getElem('txt-status');
+        const txtFps = getElem('txt-fps');
+
+        const selectLang = getElem('select-lang');
+        const selectVideoFormat = getElem('select-video-format');
+        const btnExportPng = getElem('btn-export-png');
+        const btnExportSvg = getElem('btn-export-svg');
+        const btnRecordVideo = getElem('btn-record-video');
+
+        // --- GLOBAL STATE ---
+        const state = {
+            table: 61.0,
+            modulo: 540,
+            isPlaying: false,
+            isRecording: false,
+            speed: 0.01,
+            mediaRecorder: null,
+            recordedChunks: [],
+            recordedExt: 'mp4'
+        };
+
+        function syncTableMaxWithModulo() {
+            const currentModulo = Math.max(10, parseInt(inputModulo ? inputModulo.value : 540) || 540);
+            if (rangeTable) {
+                rangeTable.max = currentModulo;
+            }
+        }
+
+        function render() {
+            if (!ctx) return;
+
+            const width = canvas.width;
+            const height = canvas.height;
+            const margin = 60;
+            const cx = width / 2.0;
+            const cy = height / 2.0;
+            const radius = (Math.min(width, height) - 2 * margin) / 2.0;
+
+            const table = state.table;
+            const modulo = Math.max(1, parseInt(inputModulo ? inputModulo.value : 540) || 540);
+            const labelStep = Math.max(1, parseInt(inputLabelStep ? inputLabelStep.value : 10) || 10);
+            const opacity = parseInt(rangeOpacity ? rangeOpacity.value : 40) || 40;
+            const circleOpacity = parseInt(rangeCircleOpacity ? rangeCircleOpacity.value : 25) || 25;
+            const lineWidth = parseFloat(rangeLineWidth ? rangeLineWidth.value : 1.0) || 1.0;
+
+            ctx.fillStyle = (colorBg && colorBg.value) ? colorBg.value : '#0f172a';
+            ctx.fillRect(0, 0, width, height);
+
+            if (checkCircle && checkCircle.checked) {
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
+                ctx.strokeStyle = hexToRgba((colorCircle && colorCircle.value) ? colorCircle.value : '#ffffff', circleOpacity);
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+
+            ctx.strokeStyle = hexToRgba((colorLine && colorLine.value) ? colorLine.value : '#ec4899', opacity);
+            ctx.lineWidth = lineWidth;
+            ctx.lineCap = 'round';
+
+            for (let i = 0; i < modulo; i++) {
+                const p1 = getPointCoords(i, modulo, cx, cy, radius);
+                const destIdx = computeDestination(i, table, modulo);
+                const p2 = getPointCoords(destIdx, modulo, cx, cy, radius);
+
+                ctx.beginPath();
+                ctx.moveTo(p1.x, p1.y);
+                ctx.lineTo(p2.x, p2.y);
+                ctx.stroke();
+            }
+
+            if (checkPoints && checkPoints.checked) {
+                ctx.fillStyle = (colorPoint && colorPoint.value) ? colorPoint.value : '#38bdf8';
+                const ptRadius = 3;
+                for (let i = 0; i < modulo; i++) {
+                    const p = getPointCoords(i, modulo, cx, cy, radius);
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, ptRadius, 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+            }
+
+            if (checkLabels && checkLabels.checked) {
+                ctx.fillStyle = (colorText && colorText.value) ? colorText.value : '#f8fafc';
+                ctx.font = '12px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                const labelOffset = 15;
+
+                for (let i = 0; i < modulo; i++) {
+                    if (i % labelStep !== 0) continue;
+                    const p = getPointCoords(i, modulo, cx, cy, radius);
+                    const dx = p.x - cx;
+                    const dy = p.y - cy;
+                    const dist = Math.hypot(dx, dy);
+
+                    let tx = p.x, ty = p.y;
+                    if (dist > 0) {
+                        tx = p.x + (dx / dist) * labelOffset;
+                        ty = p.y + (dy / dist) * labelOffset;
+                    }
+                    ctx.fillText(i.toString(), tx, ty);
+                }
+            }
+
+            if (checkTitle && checkTitle.checked) {
+                ctx.fillStyle = (colorText && colorText.value) ? colorText.value : '#f8fafc';
+                ctx.font = 'bold 14px Inter, sans-serif';
+                const tStr = Number.isInteger(table) ? table.toString() : table.toFixed(2);
+                const titleStr = `Table ${tStr}  |  Modulo ${modulo}`;
+                const titleMargin = 20;
+
+                const pos = (selectTitlePos && selectTitlePos.value) ? selectTitlePos.value : 'right';
+                if (pos === 'left') {
+                    ctx.textAlign = 'left';
+                    ctx.fillText(titleStr, titleMargin, height - titleMargin);
+                } else {
+                    ctx.textAlign = 'right';
+                    ctx.fillText(titleStr, width - titleMargin, height - titleMargin);
+                }
+            }
+        }
+
+        // --- ANIMATION LOOP (60 FPS) ---
+        let frameCount = 0;
+        let lastFrameTime = performance.now();
+
+        function animationLoop(now) {
+            frameCount++;
+            if (now - lastFrameTime >= 1000) {
+                if (txtFps) txtFps.textContent = `${frameCount} FPS`;
+                frameCount = 0;
+                lastFrameTime = now;
+            }
+
+            if (state.isPlaying) {
+                const currentModulo = Math.max(10, parseInt(inputModulo ? inputModulo.value : 540) || 540);
+                state.table += state.speed;
+
+                if (state.table > currentModulo) state.table = 1.0;
+
+                if (inputTable) inputTable.value = state.table.toFixed(2);
+                if (rangeTable) rangeTable.value = state.table;
+            }
+
+            render();
+            requestAnimationFrame(animationLoop);
+        }
+
+        function setPlayingState(playing) {
+            state.isPlaying = playing;
+            if (!btnPlay) return;
+
+            const dict = i18n[currentLang] || i18n.EN;
+
+            if (state.isPlaying) {
+                btnPlay.textContent = dict.pause;
+                btnPlay.style.background = 'linear-gradient(135deg, #ef4444 0%, #b91c1c 100%)';
+                if (!state.isRecording && statusDot && txtStatus) {
+                    statusDot.className = 'status-dot playing';
+                    txtStatus.textContent = dict.status_active;
+                }
+            } else {
+                btnPlay.textContent = dict.play;
+                btnPlay.style.background = 'linear-gradient(135deg, #ec4899 0%, #be185d 100%)';
+                if (!state.isRecording && statusDot && txtStatus) {
+                    statusDot.className = 'status-dot';
+                    txtStatus.textContent = dict.status_paused;
+                }
+            }
+        }
+
+        if (btnPlay) {
+            btnPlay.addEventListener('click', () => {
+                setPlayingState(!state.isPlaying);
+            });
+        }
+
+        if (selectLang) {
+            selectLang.addEventListener('change', () => {
+                setLanguage(selectLang.value);
+            });
+        }
+
+        if (rangeTable) {
+            rangeTable.addEventListener('input', (e) => {
+                if (e && e.isTrusted) setPlayingState(false);
+                state.table = parseFloat(rangeTable.value) || 61.0;
+                if (inputTable) inputTable.value = state.table.toFixed(2);
+                render();
+            });
+        }
+
+        if (inputTable) {
+            inputTable.addEventListener('input', (e) => {
+                if (e && e.isTrusted) setPlayingState(false);
+                state.table = parseFloat(inputTable.value) || 61.0;
+                if (rangeTable) rangeTable.value = state.table;
+                render();
+            });
+        }
+
+        if (rangeModulo) {
+            rangeModulo.addEventListener('input', () => {
+                if (inputModulo) inputModulo.value = rangeModulo.value;
+                syncTableMaxWithModulo();
+                render();
+            });
+        }
+
+        if (inputModulo) {
+            inputModulo.addEventListener('input', () => {
+                if (rangeModulo) rangeModulo.value = inputModulo.value;
+                syncTableMaxWithModulo();
+                render();
+            });
+        }
+
+        if (rangeSpeed) {
+            rangeSpeed.addEventListener('input', () => {
+                state.speed = parseFloat(rangeSpeed.value) || 0.01;
+                if (valSpeed) valSpeed.textContent = state.speed.toFixed(3);
+            });
+        }
+
+        if (rangeCircleOpacity) {
+            rangeCircleOpacity.addEventListener('input', () => {
+                if (valCircleOpacity) valCircleOpacity.textContent = rangeCircleOpacity.value;
+                render();
+            });
+        }
+
+        if (rangeOpacity) {
+            rangeOpacity.addEventListener('input', () => {
+                if (valOpacity) valOpacity.textContent = rangeOpacity.value;
+                render();
+            });
+        }
+
+        if (rangeLineWidth) {
+            rangeLineWidth.addEventListener('input', () => {
+                if (valLineWidth) valLineWidth.textContent = rangeLineWidth.value;
+                render();
+            });
+        }
+
+        const reactElements = [
+            colorBg, colorCircle, colorLine, colorPoint, colorText,
+            checkCircle, checkPoints, checkLabels, checkTitle,
+            inputLabelStep, selectTitlePos
+        ];
+
+        reactElements.forEach(elem => {
+            if (elem) {
+                elem.addEventListener('input', render);
+                elem.addEventListener('change', render);
+            }
+        });
+
+        if (btnReset) {
+            btnReset.addEventListener('click', () => {
+                setPlayingState(false);
+                state.table = 61.0;
+                if (inputTable) inputTable.value = '61.00';
+                if (rangeTable) rangeTable.value = 61;
+                if (inputModulo) inputModulo.value = '540';
+                if (rangeModulo) rangeModulo.value = 540;
+                syncTableMaxWithModulo();
+                if (checkLabels) checkLabels.checked = true;
+                if (inputLabelStep) inputLabelStep.value = '10';
+                if (rangeLineWidth) { rangeLineWidth.value = '1.0'; if (valLineWidth) valLineWidth.textContent = '1.0'; }
+                if (rangeOpacity) { rangeOpacity.value = '40'; if (valOpacity) valOpacity.textContent = '40'; }
+                if (rangeSpeed) { rangeSpeed.value = '0.01'; if (valSpeed) valSpeed.textContent = '0.010'; state.speed = 0.01; }
+                render();
+            });
+        }
+
+        if (btnRecordVideo) {
+            btnRecordVideo.addEventListener('click', () => {
+                if (!state.isRecording) {
+                    startVideoRecording();
+                } else {
+                    stopVideoRecording();
+                }
+            });
+        }
+
+        function getSupportedMimeType(preferredFmt) {
+            if (preferredFmt === 'mp4') {
+                const mp4Types = [
+                    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+                    'video/mp4;codecs=avc1',
+                    'video/mp4',
+                    'video/x-matroska'
+                ];
+                for (let t of mp4Types) {
+                    if (MediaRecorder.isTypeSupported(t)) return { mimeType: t, ext: 'mp4' };
+                }
+            }
+            const webmTypes = [
+                'video/webm;codecs=vp9',
+                'video/webm;codecs=vp8',
+                'video/webm'
+            ];
+            for (let t of webmTypes) {
+                if (MediaRecorder.isTypeSupported(t)) return { mimeType: t, ext: 'webm' };
+            }
+            return { mimeType: '', ext: preferredFmt };
+        }
+
+        function startVideoRecording() {
+            if (!state.isPlaying) setPlayingState(true);
+
+            const stream = canvas.captureStream(30);
+            state.recordedChunks = [];
+
+            const userFmt = selectVideoFormat ? selectVideoFormat.value : 'mp4';
+            const typeInfo = getSupportedMimeType(userFmt);
+            state.recordedExt = typeInfo.ext;
+
+            let options = {};
+            if (typeInfo.mimeType) options.mimeType = typeInfo.mimeType;
+
+            try {
+                state.mediaRecorder = new MediaRecorder(stream, options);
+            } catch (e) {
+                alert("Recording error: " + e.message);
+                return;
+            }
+
+            state.mediaRecorder.ondataavailable = function(e) {
+                if (e.data && e.data.size > 0) {
+                    state.recordedChunks.push(e.data);
+                }
+            };
+
+            state.mediaRecorder.onstop = function() {
+                const blob = new Blob(state.recordedChunks, { type: state.mediaRecorder.mimeType || 'video/mp4' });
+                const url = URL.createObjectURL(blob);
+
+                const tStr = Number.isInteger(state.table) ? state.table.toString() : state.table.toFixed(2);
+                const moduloVal = parseInt(inputModulo ? inputModulo.value : 540) || 540;
+                
+                let filename = `video_table_${tStr}_modulo_${moduloVal}`;
+                if (checkLabels && checkLabels.checked) filename += `_labelstep_${inputLabelStep.value}`;
+                filename += `.${state.recordedExt}`;
+
+                const a = document.createElement('a');
+                a.download = filename;
+                a.href = url;
+                a.click();
+                URL.revokeObjectURL(url);
+            };
+
+            state.mediaRecorder.start();
+            state.isRecording = true;
+            const dict = i18n[currentLang] || i18n.EN;
+            btnRecordVideo.textContent = dict.btn_stop_record + " (" + state.recordedExt.toUpperCase() + ")";
+            btnRecordVideo.classList.add('recording');
+            if (statusDot) statusDot.className = 'status-dot recording';
+            if (txtStatus) txtStatus.textContent = dict.status_recording;
+        }
+
+        function stopVideoRecording() {
+            if (state.mediaRecorder && state.mediaRecorder.state !== 'inactive') {
+                state.mediaRecorder.stop();
+            }
+            state.isRecording = false;
+            const dict = i18n[currentLang] || i18n.EN;
+            btnRecordVideo.textContent = dict.btn_record;
+            btnRecordVideo.classList.remove('recording');
+            if (statusDot) statusDot.className = state.isPlaying ? 'status-dot playing' : 'status-dot';
+            if (txtStatus) txtStatus.textContent = state.isPlaying ? dict.status_active : dict.status_paused;
+        }
+
+        if (btnExportPng) {
+            btnExportPng.addEventListener('click', () => {
+                const tStr = Number.isInteger(state.table) ? state.table.toString() : state.table.toFixed(2);
+                const moduloVal = parseInt(inputModulo ? inputModulo.value : 540) || 540;
+                
+                let filename = `image_table_${tStr}_modulo_${moduloVal}`;
+                if (checkLabels && checkLabels.checked) filename += `_labelstep_${inputLabelStep.value}`;
+                filename += `.png`;
+
+                const a = document.createElement('a');
+                a.download = filename;
+                a.href = canvas.toDataURL('image/png');
+                a.click();
+            });
+        }
+
+        if (btnExportSvg) {
+            btnExportSvg.addEventListener('click', () => {
+                const width = canvas.width;
+                const height = canvas.height;
+                const margin = 60;
+                const cx = width / 2.0;
+                const cy = height / 2.0;
+                const radius = (Math.min(width, height) - 2 * margin) / 2.0;
+
+                const table = state.table;
+                const modulo = parseInt(inputModulo ? inputModulo.value : 540) || 540;
+                const labelStep = Math.max(1, parseInt(inputLabelStep ? inputLabelStep.value : 10) || 10);
+                const opacity = (parseInt(rangeOpacity ? rangeOpacity.value : 40) / 100).toFixed(2);
+                const circleOpacity = (parseInt(rangeCircleOpacity ? rangeCircleOpacity.value : 25) / 100).toFixed(2);
+                const lineWidth = parseFloat(rangeLineWidth ? rangeLineWidth.value : 1.0) || 1.0;
+
+                let svgLines = [
+                    '<?xml version="1.0" encoding="UTF-8" standalone="no"?>',
+                    `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" xmlns="http://www.w3.org/2000/svg">`,
+                    `  <rect width="100%" height="100%" fill="${colorBg.value}" />`
+                ];
+
+                if (checkCircle && checkCircle.checked) {
+                    svgLines.push(`  <circle cx="${cx}" cy="${cy}" r="${radius}" stroke="${colorCircle.value}" stroke-opacity="${circleOpacity}" fill="none" stroke-width="1" />`);
+                }
+
+                svgLines.push(`  <g stroke="${colorLine.value}" stroke-opacity="${opacity}" stroke-width="${lineWidth}" stroke-linecap="round">`);
+                for (let i = 0; i < modulo; i++) {
+                    const p1 = getPointCoords(i, modulo, cx, cy, radius);
+                    const destIdx = computeDestination(i, table, modulo);
+                    const p2 = getPointCoords(destIdx, modulo, cx, cy, radius);
+                    svgLines.push(`    <line x1="${p1.x.toFixed(2)}" y1="${p1.y.toFixed(2)}" x2="${p2.x.toFixed(2)}" y2="${p2.y.toFixed(2)}" />`);
+                }
+                svgLines.push(`  </g>`);
+
+                if (checkPoints && checkPoints.checked) {
+                    svgLines.push(`  <g fill="${colorPoint.value}">`);
+                    for (let i = 0; i < modulo; i++) {
+                        const p = getPointCoords(i, modulo, cx, cy, radius);
+                        svgLines.push(`    <circle cx="${p.x.toFixed(2)}" cy="${p.y.toFixed(2)}" r="3" />`);
+                    }
+                    svgLines.push(`  </g>`);
+                }
+
+                if (checkLabels && checkLabels.checked) {
+                    svgLines.push(`  <g fill="${colorText.value}" font-family="sans-serif" font-size="12" text-anchor="middle" dominant-baseline="central">`);
+                    for (let i = 0; i < modulo; i++) {
+                        if (i % labelStep !== 0) continue;
+                        const p = getPointCoords(i, modulo, cx, cy, radius);
+                        const dx = p.x - cx;
+                        const dy = p.y - cy;
+                        const dist = Math.hypot(dx, dy);
+                        let tx = p.x, ty = p.y;
+                        if (dist > 0) {
+                            tx = p.x + (dx / dist) * 15;
+                            ty = p.y + (dy / dist) * 15;
+                        }
+                        svgLines.push(`    <text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}">${i}</text>`);
+                    }
+                    svgLines.push(`  </g>`);
+                }
+
+                if (checkTitle && checkTitle.checked) {
+                    const tStr = Number.isInteger(table) ? table.toString() : table.toFixed(2);
+                    const titleStr = `Table ${tStr} | Modulo ${modulo}`;
+                    const pos = selectTitlePos ? selectTitlePos.value : 'right';
+                    const anchor = pos === 'left' ? 'start' : 'end';
+                    const xPos = pos === 'left' ? 20 : width - 20;
+
+                    svgLines.push(`  <text x="${xPos}" y="${height - 20}" fill="${colorText.value}" font-family="sans-serif" font-size="14" font-weight="bold" text-anchor="${anchor}">${titleStr}</text>`);
+                }
+
+                svgLines.push('</svg>');
+
+                const blob = new Blob([svgLines.join('\n')], { type: 'image/svg+xml' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                
+                let filename = `image_table_${Number.isInteger(table) ? table : table.toFixed(2)}_modulo_${modulo}`;
+                if (checkLabels && checkLabels.checked) filename += `_labelstep_${inputLabelStep.value}`;
+                filename += `.svg`;
+
+                a.download = filename;
+                a.href = url;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+
+        // INITIALIZATION WITH LOCALSTORAGE PERSISTENCE
+        state.table = 61.0;
+        state.speed = 0.01;
+        syncTableMaxWithModulo();
+        setLanguage(currentLang);
+        render();
+        requestAnimationFrame(animationLoop);
+    </script>
+</body>
+</html>

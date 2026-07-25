@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardioid — Educational Guide & Mathematical Principles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --panel-bg: #111827;
+            --card-bg: #1f293d;
+            --accent-pink: #ec4899;
+            --accent-pink-glow: rgba(236, 72, 153, 0.2);
+            --accent-sky: #38bdf8;
+            --accent-sky-glow: rgba(56, 189, 248, 0.2);
+            --accent-green: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --code-bg: #030712;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .lang-select-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        #select-lang {
+            background: transparent;
+            border: none;
+            color: var(--accent-sky);
+            font-weight: 600;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #select-lang option {
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+        }
+
+        .btn-back {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 8px 16px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            border-color: var(--accent-sky);
+            color: var(--accent-sky);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-sky);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-sky) 50%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .section-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .section-card h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-sky);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        p {
+            color: #d1d5db;
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+        }
+
+        .formula-box {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-pink);
+            border-radius: 8px;
+            padding: 18px 24px;
+            margin: 20px 0;
+            font-family: 'Fira Code', monospace;
+            font-size: 1.1rem;
+            color: var(--accent-pink);
+            text-align: center;
+        }
+
+        /* Calculator Widget */
+        .calc-widget {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .calc-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--accent-green);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .calc-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .calc-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .calc-group input {
+            width: 100%;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--accent-sky);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .calc-result-box {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            text-align: center;
+        }
+
+        .calc-result-box .res-highlight {
+            color: var(--accent-green);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .mini-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mini-card img {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 14px;
+            object-fit: cover;
+            background-color: #0f172a;
+        }
+
+        .mini-card h3 {
+            font-size: 1.05rem;
+            color: var(--accent-pink);
+            margin-bottom: 8px;
+        }
+
+        .step-list {
+            list-style: none;
+            counter-reset: step-counter;
+            margin: 20px 0;
+        }
+
+        .step-list li {
+            counter-increment: step-counter;
+            position: relative;
+            padding-left: 45px;
+            margin-bottom: 16px;
+            color: #d1d5db;
+            font-size: 0.95rem;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, var(--accent-sky) 0%, #0284c7 100%);
+            color: #000;
+            font-weight: 700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+        }
+
+        .highlight {
+            color: var(--accent-sky);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <div class="header-top">
+                <a href="../web/index.html" class="btn-back" id="txt-btn-back">← Back to Visualizer</a>
+                <div class="lang-select-box">
+                    <label for="select-lang">🌐</label>
+                    <select id="select-lang">
+                        <option value="EN">EN - English</option>
+                        <option value="FR">FR - Français</option>
+                        <option value="ES">ES - Español</option>
+                        <option value="DE">DE - Deutsch</option>
+                        <option value="AR">AR - العربية</option>
+                        <option value="JP">JP - 日本語</option>
+                        <option value="CN">CN - 中文</option>
+                    </select>
+                </div>
+            </div>
+            <span class="badge" id="txt-badge">Educational Guide • Modular Geometry</span>
+            <h1 id="txt-title">The Hidden Beauty of Modular Multiplication Tables</h1>
+            <p class="subtitle" id="txt-subtitle">Discover how simple arithmetic multiplication on a modulo circle reveals mesmerizing cardioids, nephroids, and fractal envelopes.</p>
+        </header>
+
+        <!-- Section 1: Concept & Calculator Widget -->
+        <div class="section-card">
+            <h2 id="txt-sec1-title">✨ 1. The Mathematical Foundation</h2>
+            <p id="txt-sec1-p1">
+                Modular arithmetic, often called "clock arithmetic", operates on a finite set of numbers from <span class="highlight">0 to m - 1</span>. Imagine a circular clock divided into <span class="highlight">m</span> equal points.
+            </p>
+            <p id="txt-sec1-p2">
+                To construct a geometric multiplication table, we connect every point <span class="highlight">i</span> on the circle to its multiplied destination using a straight line (chord):
+            </p>
+
+            <div class="formula-box">
+                destination = (n × i) mod m
+            </div>
+
+            <p id="txt-sec1-p3">
+                Where <span class="highlight">n</span> is the multiplication table factor (e.g. 2, 3, 61), <span class="highlight">i</span> is the point index (0, 1, 2, ... m-1), and <span class="highlight">m</span> is the modulo (e.g. 100, 540).
+            </p>
+
+            <!-- INTERACTIVE CALCULATOR WIDGET -->
+            <div class="calc-widget">
+                <div class="calc-title" id="txt-calc-title">🧮 Interactive Modulo Calculator</div>
+                <div class="calc-grid">
+                    <div class="calc-group">
+                        <label for="calc-n" id="txt-calc-lbl-n">Table (Multiplier n)</label>
+                        <input type="number" id="calc-n" value="2" step="0.1">
+                    </div>
+                    <div class="calc-group">
+                        <label for="calc-i" id="txt-calc-lbl-i">Point Index (i)</label>
+                        <input type="number" id="calc-i" value="7" min="0">
+                    </div>
+                    <div class="calc-group">
+                        <label for="calc-m" id="txt-calc-lbl-m">Modulo (m)</label>
+                        <input type="number" id="calc-m" value="10" min="2">
+                    </div>
+                </div>
+                <div class="calc-result-box" id="calc-result">
+                    2 × 7 = 14  ➔  14 mod 10 = <span class="res-highlight">4</span> (Chord connects 7 ➔ 4)
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Step-by-Step Construction -->
+        <div class="section-card">
+            <h2 id="txt-sec2-title">📐 2. How the Envelope Emerges</h2>
+            <p id="txt-sec2-intro">Although every single connection is a straight line segment, the dense accumulation of hundreds of straight lines forms a smooth curved shape called an <span class="highlight">envelope curve</span>.</p>
+            
+            <ul class="step-list">
+                <li id="txt-step1"><strong>Distribute points:</strong> Place <span class="highlight">m</span> points regularly spaced around a circle, numbered 0 to <span class="highlight">m-1</span>.</li>
+                <li id="txt-step2"><strong>Calculate destination:</strong> For point <span class="highlight">i</span>, multiply by table <span class="highlight">n</span> and compute the remainder modulo <span class="highlight">m</span>.</li>
+                <li id="txt-step3"><strong>Draw chord:</strong> Draw a straight line from point <span class="highlight">i</span> to its calculated destination point.</li>
+                <li id="txt-step4"><strong>Observe emergence:</strong> As all chords are drawn, an organic geometric curve appears in the negative space!</li>
+            </ul>
+        </div>
+
+        <!-- Section 3: Classic Curves with Generated Images -->
+        <div class="section-card">
+            <h2 id="txt-sec3-title">🌸 3. Classic Geometric Figures</h2>
+            <p id="txt-sec3-intro">Different integer multiplication tables generate well-known geometric curves from classical differential geometry:</p>
+
+            <div class="grid-2">
+                <div class="mini-card">
+                    <img src="images/cardioid_t2.png" alt="Cardioid Table 2 Modulo 200">
+                    <h3 id="txt-card1-h">Table 2: The Cardioid</h3>
+                    <p id="txt-card1-p">Table 2 creates a 1-cusp heart-shaped curve called a <strong>Cardioid</strong>. It is the same curve formed by light reflecting inside a coffee cup or a parabolic mirror.</p>
+                </div>
+                <div class="mini-card">
+                    <img src="images/nephroid_t3.png" alt="Nephroid Table 3 Modulo 200">
+                    <h3 id="txt-card2-h">Table 3: The Nephroid</h3>
+                    <p id="txt-card2-p">Table 3 produces a 2-cusp kidney-shaped curve called a <strong>Nephroid</strong>. The number of cusps (pointed tips) for Table N is always <strong>N - 1</strong>.</p>
+                </div>
+                <div class="mini-card">
+                    <img src="images/epicycloid_t4.png" alt="Epicycloid Table 4 Modulo 200">
+                    <h3 id="txt-card3-h">Table 4: 3-Cusp Epicycloid</h3>
+                    <p id="txt-card3-p">Table 4 forms a 3-cusp epicycloid (trefoil shape). As N increases, the number of internal petals increases linearly.</p>
+                </div>
+                <div class="mini-card">
+                    <img src="images/fractal_t61.png" alt="Fractal Table 61 Modulo 540">
+                    <h3 id="txt-card4-h">Decimal & High Tables (e.g. 61.00)</h3>
+                    <p id="txt-card4-p">When table N is a continuous decimal (e.g. 61.00 or moving continuously), the figure smoothly morphs through complex optical web patterns!</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- I18N DICTIONARY WITH LOCALSTORAGE PERSISTENCE -->
+    <script>
+        const i18n = {
+            EN: {
+                btn_back: "← Back to Visualizer",
+                badge: "Educational Guide • Modular Geometry",
+                title: "The Hidden Beauty of Modular Multiplication Tables",
+                subtitle: "Discover how simple arithmetic multiplication on a modulo circle reveals mesmerizing cardioids, nephroids, and fractal envelopes.",
+                sec1_title: "✨ 1. The Mathematical Foundation",
+                sec1_p1: "Modular arithmetic, often called \"clock arithmetic\", operates on a finite set of numbers from 0 to m - 1. Imagine a circular clock divided into m equal points.",
+                sec1_p2: "To construct a geometric multiplication table, we connect every point i on the circle to its multiplied destination using a straight line (chord):",
+                sec1_p3: "Where n is the multiplication table factor (e.g. 2, 3, 61), i is the point index (0, 1, 2, ... m-1), and m is the modulo (e.g. 100, 540).",
+                calc_title: "🧮 Interactive Modulo Calculator",
+                calc_lbl_n: "Table (Multiplier n)",
+                calc_lbl_i: "Point Index (i)",
+                calc_lbl_m: "Modulo (m)",
+                sec2_title: "📐 2. How the Envelope Emerges",
+                sec2_intro: "Although every single connection is a straight line segment, the dense accumulation of hundreds of straight lines forms a smooth curved shape called an envelope curve.",
+                step1: "Distribute points: Place m points regularly spaced around a circle, numbered 0 to m-1.",
+                step2: "Calculate destination: For point i, multiply by table n and compute the remainder modulo m.",
+                step3: "Draw chord: Draw a straight line from point i to its calculated destination point.",
+                step4: "Observe emergence: As all chords are drawn, an organic geometric curve appears in the negative space!",
+                sec3_title: "🌸 3. Classic Geometric Figures",
+                sec3_intro: "Different integer multiplication tables generate well-known geometric curves from classical differential geometry:",
+                card1_h: "Table 2: The Cardioid",
+                card1_p: "Table 2 creates a 1-cusp heart-shaped curve called a Cardioid. It is the same curve formed by light reflecting inside a coffee cup or a parabolic mirror.",
+                card2_h: "Table 3: The Nephroid",
+                card2_p: "Table 3 produces a 2-cusp kidney-shaped curve called a Nephroid. The number of cusps (pointed tips) for Table N is always N - 1.",
+                card3_h: "Table 4: 3-Cusp Epicycloid",
+                card3_p: "Table 4 forms a 3-cusp epicycloid (trefoil shape). As N increases, the number of internal petals increases linearly.",
+                card4_h: "Decimal & High Tables (e.g. 61.00)",
+                card4_p: "When table N is a continuous decimal (e.g. 61.00 or moving continuously), the figure smoothly morphs through complex optical web patterns!"
+            },
+            FR: {
+                btn_back: "← Retour au Visualisateur",
+                badge: "Guide Pédagogique • Géométrie Modulaire",
+                title: "La Face Cachée des Tables de Multiplication",
+                subtitle: "Découvrez comment de simples multiplications sur un cercle modulaire révèlent des cardioïdes, néphroïdes et rosaces d'une beauté saisissante.",
+                sec1_title: "✨ 1. Les Fondements Mathématiques",
+                sec1_p1: "L'arithmétique modulaire, souvent appelée \"arithmétique de l'horloge\", opère sur un ensemble fini de nombres de 0 à m - 1. Imaginez une horloge circulaire divisée en m points égaux.",
+                sec1_p2: "Pour construire une table de multiplication géométrique, on relie chaque point i sur le cercle à son point de destination multiplié par une droite (corde) :",
+                sec1_p3: "Où n est la table de multiplication (ex: 2, 3, 61), i est l'indice du point (0, 1, 2, ... m-1), et m est le modulo (ex: 100, 540).",
+                calc_title: "🧮 Calculette Modulaire Interactive",
+                calc_lbl_n: "Table (Multiplicateur n)",
+                calc_lbl_i: "Indice du Point (i)",
+                calc_lbl_m: "Modulo (m)",
+                sec2_title: "📐 2. L'Émergence de la Courbe Enveloppe",
+                sec2_intro: "Bien que chaque connexion soit un segment de droite rectiligne, l'accumulation dense de centaines de cordes fait émerger une forme courbe continue appelée courbe enveloppe.",
+                step1: "Répartir les points : Placer m points régulièrement espacés sur le cercle, numérotés de 0 à m-1.",
+                step2: "Calculer la destination : Pour le point i, multiplier par n et calculer le reste modulo m.",
+                step3: "Tracer la corde : Relier par un trait droit le point i à sa destination calculée.",
+                step4: "Observer la forme : Lorsque toutes les cordes sont tracées, une courbe organique apparaît !",
+                sec3_title: "🌸 3. Figures Géométriques Classiques",
+                sec3_intro: "Chaque table de multiplication génère des figures célèbres de la géométrie différentielle :",
+                card1_h: "Table 2 : La Cardioïde",
+                card1_p: "La Table 2 génère une courbe en forme de cœur à 1 rebroussement appelée Cardioïde. C'est la même courbe que la caustique formée par la lumière dans une tasse à café.",
+                card2_h: "Table 3 : La Néphroïde",
+                card2_p: "La Table 3 produit une courbe à 2 rebroussements en forme de rein appelée Néphroïde. Le nombre de points de rebroussement pour la Table N est toujours N - 1.",
+                card3_h: "Table 4 : Épicycloïde à 3 Rebouissements",
+                card3_p: "La Table 4 forme une épicycloïde à 3 lobes (trèfle). Quand N augmente, le nombre de pétales internes augmente linéairement.",
+                card4_h: "Tables Décimales & Élevées (ex: 61.00)",
+                card4_p: "Lorsque la table N évolue continûment avec des valeurs décimales, la figure se métamorphose avec fluidité à travers des toiles optiques complexes !"
+            },
+            ES: {
+                btn_back: "← Volver al Visualizador",
+                badge: "Guía Educativa • Geometría Modular",
+                title: "La Belleza Oculta de las Tablas de Multiplicar",
+                subtitle: "Descubra cómo simples multiplicaciones en un círculo modular revelan cardioides y nefroides fascinantes.",
+                sec1_title: "✨ 1. El Fundamento Matemático",
+                sec1_p1: "La aritmética modular opera sobre un conjunto finito de números de 0 a m - 1.",
+                sec1_p2: "Conectamos cada punto i del círculo con su destino multiplicado mediante una línea recta:",
+                sec1_p3: "Donde n es la tabla (ej. 2, 3, 61), i es el índice del punto y m es el módulo.",
+                calc_title: "🧮 Calculadora Modular Interactiva",
+                calc_lbl_n: "Tabla (Multiplicador n)",
+                calc_lbl_i: "Índice de Punto (i)",
+                calc_lbl_m: "Módulo (m)",
+                sec2_title: "📐 2. Cómo Surge la Envolvente",
+                sec2_intro: "Aunque cada conexión es una línea recta, la acumulación de cientos de líneas forma una curva suave llamada envolvente.",
+                step1: "Distribuir puntos alrededor del círculo.",
+                step2: "Calcular el destino: (n × i) mod m.",
+                step3: "Trazar la cuerda entre i y su destino.",
+                step4: "¡Observar la aparición de la curva!",
+                sec3_title: "🌸 3. Figuras Clásicas",
+                sec3_intro: "Diferentes tablas generan curvas geométricas famosas:",
+                card1_h: "Tabla 2: La Cardioide",
+                card1_p: "Crea una curva en forma de corazón con 1 cúspide llamada Cardioide.",
+                card2_h: "Tabla 3: La Nefroide",
+                card2_p: "Produce una curva en forma de riñón con 2 cúspides llamada Nefroide.",
+                card3_h: "Tabla 4: Epicicloide de 3 cúspides",
+                card3_p: "Forma un trébol de 3 lóbulos.",
+                card4_h: "Tablas Decimales (ej. 61.00)",
+                card4_p: "¡Crea patrones ópticos en transformación continua!"
+            },
+            DE: {
+                btn_back: "← Zurück zum Visualisierer",
+                badge: "Bildungsführer • Modulare Geometrie",
+                title: "Die verborgene Schönheit der Einmaleins-Tabellen",
+                subtitle: "Entdecken Sie, wie einfache Multiplikationen auf einem Modulo-Kreis faszinierende Kardiode und Nephroide enthüllen.",
+                sec1_title: "✨ 1. Die mathematische Grundlage",
+                sec1_p1: "Modulare Arithmetik arbeitet auf einer endlichen Menge von Zahlen von 0 bis m - 1.",
+                sec1_p2: "Wir verbinden jeden Punkt i auf dem Kreis mit seinem Zielpunkt:",
+                sec1_p3: "Wobei n der Multiplikator ist, i der Punktindex und m das Modulo.",
+                calc_title: "🧮 Interaktiver Modulo-Rechner",
+                calc_lbl_n: "Tabelle (Multiplikator n)",
+                calc_lbl_i: "Punktindex (i)",
+                calc_lbl_m: "Modulo (m)",
+                sec2_title: "📐 2. Wie die Einhüllende entsteht",
+                sec2_intro: "Obwohl jede Verbindung eine gerade Linie ist, bildet die Dichte Hunderter Linien eine Einhüllende.",
+                step1: "Punkte gleichmäßig auf dem Kreis verteilen.",
+                step2: "Ziel berechnen: (n × i) mod m.",
+                step3: "Sehne vom Punkt i zum Ziel zeichnen.",
+                step4: "Entstehung der organischen Kurve beobachten!",
+                sec3_title: "🌸 3. Klassische Figuren",
+                sec3_intro: "Verschiedene Tabellen erzeugen berühmte geometrische Kurven:",
+                card1_h: "Tabelle 2: Die Kardioide",
+                card1_p: "Erzeugt eine herzförmige Kurve mit 1 Spitze (Kardioide).",
+                card2_h: "Tabelle 3: Die Nephroide",
+                card2_p: "Erzeugt eine nierenförmige Kurve mit 2 Spitzen (Nephroide).",
+                card3_h: "Tabelle 4: Epizykloide",
+                card3_p: "Erzeugt eine 3-blättrige Kleeblattform.",
+                card4_h: "Dezimaltabellen (z.B. 61.00)",
+                card4_p: "Erzeugen kontinuierliche optische Muster!"
+            },
+            AR: {
+                btn_back: "← العودة إلى أداة التجسيم",
+                badge: "الدليل التعليمي • الهندسة النمطية",
+                title: "الجمال الخفي لجداول الضرب النمطية",
+                subtitle: "اكتشف كيف تكشف العمليات الحسابية البسيطة على دائرة نمطية عن منحنيات قلبية وكلوية مذهلة.",
+                sec1_title: "✨ 1. الأساس الرياضي",
+                sec1_p1: "يعمل الحساب النمطي على مجموعة من الأعداد من 0 إلى m - 1.",
+                sec1_p2: "نقوم بتوصيل كل نقطة i على الدائرة بوجهتها المضروبة باستخدام خط مستقيم (وتر):",
+                sec1_p3: "حيث n هو جدول الضرب، و i هو دليل النقطة، و m هو النموذج (عدد النقاط).",
+                calc_title: "🧮 حاسبة النموذج التفاعلية",
+                calc_lbl_n: "الجدول (المضاعف n)",
+                calc_lbl_i: "دليل النقطة (i)",
+                calc_lbl_m: "النموذج (m)",
+                sec2_title: "📐 2. كيف يظهر المنحنى الغلافي",
+                sec2_intro: "رغم أن كل اتصال هو خط مستقيم، فإن تراكم مئات الخطوط يشكل منحنى غلافياً انسيابياً.",
+                step1: "توزيع النقاط بانتظام على الدائرة من 0 إلى m-1.",
+                step2: "حساب الوجهة: (n × i) mod m.",
+                step3: "رسم الوتر بين النقطة بوجهتها.",
+                step4: "ملاحظة ظهور المنحنى الهندسي!",
+                sec3_title: "🌸 3. الأشكال الهندسية الكلاسيكية",
+                sec3_intro: "تنتج جداول الضرب المختلفة منحنيات هندسية شهيرة:",
+                card1_h: "الجدول 2: المنحنى القلبي (Cardioid)",
+                card1_p: "ينتج منحنى على شكل قلب بقمة واحدة.",
+                card2_h: "الجدول 3: المنحنى الكلوي (Nephroid)",
+                card2_p: "ينتج منحنى على شكل كلية بقمّتين.",
+                card3_h: "الجدول 4: المنحنى ثلاثي الفصوص",
+                card3_p: "يشكل منحنى ثلاثي الأوراق.",
+                card4_h: "الجداول العشرية (مثل 61.00)",
+                card4_p: "تتغير الأشكال بسلاسة عبر أنماط بصرية معقدة!"
+            },
+            JP: {
+                btn_back: "← ビジュアライザーに戻る",
+                badge: "学習ガイド • モジュラー幾何学",
+                title: "掛け算表の隠された美しさ",
+                subtitle: "モジュロ円上の単純な掛け算が、カディオイドやネフロイドなどの美しい包絡線を形成する様子を学びましょう。",
+                sec1_title: "✨ 1. 数学的基礎",
+                sec1_p1: "モジュラー算術は、0 から m-1 までの有限の数の集合上で動作します。",
+                sec1_p2: "円上の各点 i を掛け算の目的地と直線（弦）で結びます：",
+                sec1_p3: "ここで n は掛け算表の乗数、i は点のインデックス、m はモジュロ（点の数）です。",
+                calc_title: "🧮 インタラクティブ・モジュロ電卓",
+                calc_lbl_n: "掛け算表 (乗数 n)",
+                calc_lbl_i: "点の番号 (i)",
+                calc_lbl_m: "モジュロ (m)",
+                sec2_title: "📐 2. 包絡線の出現",
+                sec2_intro: "すべての接続は直線ですが、数百本の直線が集まることで滑らかな「包絡線」が形成されます。",
+                step1: "円上に m 個の点を等間隔に配置します。",
+                step2: "目的地を計算します：(n × i) mod m",
+                step3: "点 i から目的地へ直線を引きます。",
+                step4: "美しい幾何学曲線が現れるのを観察します！",
+                sec3_title: "🌸 3. 古典的な幾何学図形",
+                sec3_intro: "整数乗数によって様々な有名な曲線が形成されます：",
+                card1_h: "表 2: カディオイド (心臓形)",
+                card1_p: "1つの尖頭を持つ心臓形の曲線を形成します。",
+                card2_h: "表 3: ネフロイド (腎臓形)",
+                card2_p: "2つの尖頭を持つ腎臓形の曲線を形成します。",
+                card3_h: "表 4: 3尖頭エピサイクロイド",
+                card3_p: "3つの葉を持つ三つ葉形を形成します。",
+                card4_h: "小数・高次倍の表 (例: 61.00)",
+                card4_p: "乗数を連続的に変化させると、複雑で光学的なパターンへと滑らかに変容します！"
+            },
+            CN: {
+                btn_back: "← 返回可视化工具",
+                badge: "原理教学指南 • 模几何",
+                title: "模乘法表隐藏的几何之美",
+                subtitle: "探索模数圆上的简单乘法如何呈现心脏线、肾形线和分形包络线。",
+                sec1_title: "✨ 1. 数学基础",
+                sec1_p1: "模算术在 0 到 m - 1 的有限集合上运行。",
+                sec1_p2: "我们将圆上的每个点 i 用直线（弦）连接到其乘积目标点：",
+                sec1_p3: "其中 n 是乘法表乘数，i 是点索引，m 是模数（点数）。",
+                calc_title: "🧮 交互式模数计算器",
+                calc_lbl_n: "乘法表 (乘数 n)",
+                calc_lbl_i: "点索引 (i)",
+                calc_lbl_m: "模数 (m)",
+                sec2_title: "📐 2. 包络线的形成",
+                sec2_intro: "尽管每条连接线都是直线，但数百条直线的致密累积形成了光滑的包络线。",
+                step1: "在圆上均匀分布 m 个点。",
+                step2: "计算目标点：(n × i) mod m。",
+                step3: "绘制从点 i 到目标点的直线。",
+                step4: "观察几何曲面的出现！",
+                sec3_title: "🌸 3. 经典几何图形",
+                sec3_intro: "不同的整数乘数会生成经典的微分几何曲线：",
+                card1_h: "乘法表 2：心脏线 (Cardioid)",
+                card1_p: "生成具有 1 个尖点的心形曲线。",
+                card2_h: "乘法表 3：肾形线 (Nephroid)",
+                card2_p: "生成具有 2 个尖点的肾形曲线。",
+                card3_h: "乘法表 4：三尖点外摆线",
+                card3_p: "形成三叶草形状。",
+                card4_h: "小数与高阶表 (如 61.00)",
+                card4_p: "当乘数连续变化时，图形会流畅地演变为复杂的干涉图案！"
+            }
+        };
+
+        let currentLang = localStorage.getItem('cardioid_lang') || "EN";
+
+        function setLanguage(lang) {
+            if (!i18n[lang]) lang = "EN";
+            currentLang = lang;
+            localStorage.setItem('cardioid_lang', lang);
+            const dict = i18n[lang];
+
+            document.documentElement.dir = (lang === "AR") ? "rtl" : "ltr";
+            document.documentElement.lang = lang.toLowerCase();
+
+            const selectLang = document.getElementById('select-lang');
+            if (selectLang) selectLang.value = lang;
+
+            document.getElementById('txt-btn-back').textContent = dict.btn_back;
+            document.getElementById('txt-badge').textContent = dict.badge;
+            document.getElementById('txt-title').textContent = dict.title;
+            document.getElementById('txt-subtitle').textContent = dict.subtitle;
+            document.getElementById('txt-sec1-title').textContent = dict.sec1_title;
+            document.getElementById('txt-sec1-p1').textContent = dict.sec1_p1;
+            document.getElementById('txt-sec1-p2').textContent = dict.sec1_p2;
+            document.getElementById('txt-sec1-p3').textContent = dict.sec1_p3;
+            document.getElementById('txt-calc-title').textContent = dict.calc_title;
+            document.getElementById('txt-calc-lbl-n').textContent = dict.calc_lbl_n;
+            document.getElementById('txt-calc-lbl-i').textContent = dict.calc_lbl_i;
+            document.getElementById('txt-calc-lbl-m').textContent = dict.calc_lbl_m;
+            document.getElementById('txt-sec2-title').textContent = dict.sec2_title;
+            document.getElementById('txt-sec2-intro').textContent = dict.sec2_intro;
+            document.getElementById('txt-step1').innerHTML = dict.step1;
+            document.getElementById('txt-step2').innerHTML = dict.step2;
+            document.getElementById('txt-step3').innerHTML = dict.step3;
+            document.getElementById('txt-step4').innerHTML = dict.step4;
+            document.getElementById('txt-sec3-title').textContent = dict.sec3_title;
+            document.getElementById('txt-sec3-intro').textContent = dict.sec3_intro;
+            document.getElementById('txt-card1-h').textContent = dict.card1_h;
+            document.getElementById('txt-card1-p').textContent = dict.card1_p;
+            document.getElementById('txt-card2-h').textContent = dict.card2_h;
+            document.getElementById('txt-card2-p').textContent = dict.card2_p;
+            document.getElementById('txt-card3-h').textContent = dict.card3_h;
+            document.getElementById('txt-card3-p').textContent = dict.card3_p;
+            document.getElementById('txt-card4-h').textContent = dict.card4_h;
+            document.getElementById('txt-card4-p').textContent = dict.card4_p;
+            updateCalculator();
+        }
+
+        // --- CALCULATRICE MODULAIRE INTERACTIVE ---
+        const inputN = document.getElementById('calc-n');
+        const inputI = document.getElementById('calc-i');
+        const inputM = document.getElementById('calc-m');
+        const calcResDiv = document.getElementById('calc-result');
+
+        function updateCalculator() {
+            if (!inputN || !inputI || !inputM || !calcResDiv) return;
+            const n = parseFloat(inputN.value) || 2;
+            const i = parseInt(inputI.value) || 0;
+            const m = Math.max(1, parseInt(inputM.value) || 10);
+
+            const mult = (n * i);
+            const dest = (mult % m);
+            const destFormatted = Number.isInteger(dest) ? dest.toString() : dest.toFixed(2);
+
+            calcResDiv.innerHTML = `${n} × ${i} = ${mult.toFixed(1).replace('.0','')}  ➔  ${mult.toFixed(1).replace('.0','')} mod ${m} = <span class="res-highlight">${destFormatted}</span> (Chord connects ${i} ➔ ${destFormatted})`;
+        }
+
+        [inputN, inputI, inputM].forEach(elem => {
+            if (elem) {
+                elem.addEventListener('input', updateCalculator);
+            }
+        });
+
+        const selectLang = document.getElementById('select-lang');
+        if (selectLang) {
+            selectLang.addEventListener('change', () => {
+                setLanguage(selectLang.value);
+            });
+        }
+
+        setLanguage(currentLang);
+    </script>
+</body>
+</html>
