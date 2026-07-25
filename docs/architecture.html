@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardioid — Software Architecture Specification & Technical Reference</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --panel-bg: #111827;
+            --card-bg: #1f293d;
+            --accent-pink: #ec4899;
+            --accent-pink-glow: rgba(236, 72, 153, 0.2);
+            --accent-sky: #38bdf8;
+            --accent-sky-glow: rgba(56, 189, 248, 0.2);
+            --accent-green: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --code-bg: #030712;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.7;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 14px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-sky);
+            color: var(--accent-sky);
+        }
+
+        .lang-select-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+
+        #select-lang {
+            background: transparent;
+            border: none;
+            color: var(--accent-sky);
+            font-weight: 600;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #select-lang option {
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-sky);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-sky) 50%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .section-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+        }
+
+        .section-card h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--accent-sky);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .diagram-box {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .mermaid {
+            width: 100%;
+        }
+
+        .plantuml-box {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            color: var(--accent-sky);
+            white-space: pre-wrap;
+            word-break: break-all;
+            margin-top: 15px;
+            width: 100%;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        th {
+            background-color: rgba(15, 23, 42, 0.8);
+            color: var(--accent-sky);
+            font-weight: 600;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--code-bg);
+            color: var(--accent-pink);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.82rem;
+        }
+
+        .repo-link {
+            color: var(--accent-sky);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .repo-link:hover {
+            text-decoration: underline;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+
+        .module-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 18px;
+        }
+
+        .module-card h3 {
+            font-size: 1.05rem;
+            color: var(--accent-green);
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .module-card p {
+            font-size: 0.88rem;
+            color: #d1d5db;
+            margin-bottom: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <div class="header-top">
+                <div class="nav-links">
+                    <a href="../web/index.html" class="btn-secondary" id="txt-nav-web">← Web App</a>
+                    <a href="educational.html" class="btn-secondary" id="txt-nav-edu">🎓 Educational Guide</a>
+                    <a href="manual.html" class="btn-secondary" id="txt-nav-manual">📖 Manual & CLI</a>
+                    <a href="../output/reports/rapport_tests.html" class="btn-secondary" id="txt-nav-tests">🧪 Test Report</a>
+                </div>
+                <div class="lang-select-box">
+                    <label for="select-lang">🌐</label>
+                    <select id="select-lang">
+                        <option value="EN">EN - English</option>
+                        <option value="FR">FR - Français</option>
+                        <option value="ES">ES - Español</option>
+                        <option value="DE">DE - Deutsch</option>
+                        <option value="AR">AR - العربية</option>
+                        <option value="JP">JP - 日本語</option>
+                        <option value="CN">CN - 中文</option>
+                    </select>
+                </div>
+            </div>
+            <span class="badge" id="txt-badge">Architecture & System Design</span>
+            <h1 id="txt-title">Cardioid — Software Architecture Specification</h1>
+            <p class="subtitle" id="txt-subtitle">Complete architectural description, component interactions, module specifications, PlantUML class diagrams, and API reference.</p>
+        </header>
+
+        <!-- 1. Executive Summary & Repository Link -->
+        <div class="section-card">
+            <h2 id="txt-sec1-title">📌 1. System Overview & Repository Reference</h2>
+            <p id="txt-sec1-p1">
+                The <strong>Cardioid Project</strong> is a dual-engine software suite designed for real-time visualization, vector rendering, frame sequence generation, and video compilation of modular multiplication tables geometry.
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th id="th-attr">Attribute</th>
+                        <th id="th-val">Value / GitHub Location</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="td-repo">GitHub Repository</td>
+                        <td><a href="https://github.com/simoscream/Cardioid" target="_blank" class="repo-link">https://github.com/simoscream/Cardioid</a></td>
+                    </tr>
+                    <tr>
+                        <td id="td-version">Current Version Tag</td>
+                        <td><code>v2.0</code> (Major Release)</td>
+                    </tr>
+                    <tr>
+                        <td id="td-web-url">Live GitHub Pages URL</td>
+                        <td><a href="https://simoscream.github.io/Cardioid/" target="_blank" class="repo-link">https://simoscream.github.io/Cardioid/</a></td>
+                    </tr>
+                    <tr>
+                        <td id="td-stack">Technology Stack</td>
+                        <td>HTML5 Canvas 2D, JavaScript (ES6+), Python 3.12, Pillow, FFmpeg, Pytest, GitHub Actions/Pages</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. High-Level Architecture Diagram -->
+        <div class="section-card">
+            <h2 id="txt-sec2-title">🏗️ 2. High-Level System Architecture</h2>
+            <p id="txt-sec2-p1">The architecture is split into two independent, complementary execution environments: the <strong>Client Web Canvas 2D Engine</strong> (zero-dependency browser execution) and the <strong>Python CLI Rendering Engine</strong> (high-resolution offline batch rendering and FFmpeg video compilation).</p>
+
+            <div class="diagram-box">
+                <div class="mermaid">
+                graph TD
+                    subgraph User_Interfaces["User Interfaces Layer"]
+                        WebUI["Web Visualizer (60 FPS)<br/>web/index.html"]
+                        CLI["Python CLI Tool<br/>main.py"]
+                        Manual["Interactive Manual<br/>docs/manual.html"]
+                        Edu["Educational Guide<br/>docs/educational.html"]
+                    end
+
+                    subgraph Core_Math["Core Mathematical Engine"]
+                        MathJS["Trigonometric & Modulo Engine (JS)<br/>destination = (n × i) mod m"]
+                        MathPy["Trigonometric & Modulo Engine (Python)<br/>src/math_engine.py"]
+                    end
+
+                    subgraph Render_Engines["Rendering & Output Engines"]
+                        Canvas2D["Browser Canvas 2D Renderer<br/>HTML5 Canvas API"]
+                        PNGRenderer["Pillow PNG Renderer<br/>src/renderers/png_renderer.py"]
+                        SVGRenderer["Vector SVG Renderer<br/>src/renderers/svg_renderer.py"]
+                    end
+
+                    subgraph Export_Layer["Export & Media Layer"]
+                        MediaRec["Browser MediaRecorder API<br/>MP4 / WebM Exporter"]
+                        SeriesGen["Frame Series Generator<br/>src/series_generator.py"]
+                        FFmpeg["FFmpeg Video Exporter<br/>src/video_exporter.py"]
+                    end
+
+                    WebUI --> MathJS
+                    MathJS --> Canvas2D
+                    Canvas2D --> MediaRec
+
+                    CLI --> MathPy
+                    MathPy --> PNGRenderer
+                    MathPy --> SVGRenderer
+                    PNGRenderer --> SeriesGen
+                    SeriesGen --> FFmpeg
+
+                    style WebUI fill:#1e293b,stroke:#38bdf8,stroke-width:2px;
+                    style CLI fill:#1e293b,stroke:#ec4899,stroke-width:2px;
+                    style MathJS fill:#030712,stroke:#10b981,stroke-width:2px;
+                    style MathPy fill:#030712,stroke:#10b981,stroke-width:2px;
+                </div>
+            </div>
+        </div>
+
+        <!-- 2.2 Class Diagram (PlantUML & Mermaid) -->
+        <div class="section-card">
+            <h2 id="txt-sec22-title">📐 2.2 PlantUML & Class Diagram</h2>
+            <p id="txt-sec22-p1">Object-Oriented structure of configuration dataclasses, abstract renderers, concrete Pillow/SVG implementations, and batch exporters.</p>
+
+            <div class="diagram-box">
+                <div class="mermaid">
+                classDiagram
+                    class StyleConfig {
+                        +Tuple background_color
+                        +Tuple circle_color
+                        +Tuple line_color
+                        +Tuple point_color
+                        +Tuple text_color
+                        +float line_width
+                        +float point_radius
+                        +bool show_circle
+                        +bool show_points
+                        +bool show_labels
+                        +int label_step
+                        +bool show_title
+                        +string title_position
+                    }
+
+                    class RenderConfig {
+                        +float table
+                        +int modulo
+                        +int width
+                        +int height
+                        +int margin
+                        +StyleConfig style
+                        +center() Tuple
+                        +circle_radius() float
+                    }
+
+                    class BaseRenderer {
+                        #RenderConfig config
+                        +render(output_path) Path
+                    }
+
+                    class PNGRenderer {
+                        +render(output_path) Path
+                    }
+
+                    class SVGRenderer {
+                        +render(output_path) Path
+                    }
+
+                    class SeriesGenerator {
+                        +Path output_dir
+                        +generate_series(start, end, step, modulo, style)
+                    }
+
+                    class VideoExporter {
+                        +string ffmpeg_cmd
+                        +export_video(series_dir, output_video, fps) Path
+                    }
+
+                    RenderConfig *-- StyleConfig
+                    BaseRenderer <|-- PNGRenderer
+                    BaseRenderer <|-- SVGRenderer
+                    BaseRenderer --> RenderConfig
+                    SeriesGenerator --> PNGRenderer
+                    VideoExporter ..> SeriesGenerator
+                </div>
+            </div>
+
+            <p style="margin-top: 15px; font-weight: 600; color: var(--accent-pink);" id="txt-plantuml-title">📄 Official PlantUML Code Specification:</p>
+            <div class="plantuml-box">@startuml Cardioid_Class_Diagram
+
+package "Configuration Layer" {
+    class StyleConfig {
+        + background_color: Tuple[int, int, int]
+        + circle_color: Tuple[int, int, int, int]
+        + line_color: Tuple[int, int, int, int]
+        + point_color: Tuple[int, int, int, int]
+        + text_color: Tuple[int, int, int, int]
+        + line_width: float
+        + point_radius: float
+        + show_circle: bool
+        + show_points: bool
+        + show_labels: bool
+        + label_step: int
+        + show_title: bool
+        + title_position: str
+    }
+
+    class RenderConfig {
+        + table: float
+        + modulo: int
+        + width: int
+        + height: int
+        + margin: int
+        + style: StyleConfig
+        + center() : Tuple[float, float]
+        + circle_radius() : float
+    }
+
+    RenderConfig *-- StyleConfig
+}
+
+package "Rendering Pipeline" {
+    abstract class BaseRenderer {
+        # config: RenderConfig
+        + {abstract} render(output_path: Path) : Path
+    }
+
+    class PNGRenderer {
+        + render(output_path: Path) : Path
+    }
+
+    class SVGRenderer {
+        + render(output_path: Path) : Path
+    }
+
+    BaseRenderer <|-- PNGRenderer
+    BaseRenderer <|-- SVGRenderer
+    BaseRenderer --> RenderConfig
+}
+
+package "Batch & Video Exporters" {
+    class SeriesGenerator {
+        + output_dir: Path
+        + generate_series(start_table: float, end_table: float, step: float, modulo: int, style: StyleConfig) : List[Path]
+    }
+
+    class VideoExporter {
+        + ffmpeg_cmd: str
+        + export_video(series_dir: Path, output_video_path: Path, fps: int) : Path
+    }
+
+    SeriesGenerator --> PNGRenderer
+    VideoExporter ..> SeriesGenerator
+}
+
+@enduml</div>
+        </div>
+
+        <!-- 3. Software Modules Specification -->
+        <div class="section-card">
+            <h2 id="txt-sec3-title">🧩 3. Software Modules Specification</h2>
+            <div class="module-grid">
+                
+                <div class="module-card">
+                    <h3><span>web/index.html</span> <a href="https://github.com/simoscream/Cardioid/blob/main/web/index.html" target="_blank" class="repo-link">code</a></h3>
+                    <p id="mod-web">Standalone single-file 60 FPS HTML5 Canvas visualizer. Manages state, real-time animation loop, color pickers, PNG/SVG 1-click downloads, MediaRecorder video capture, and 7-language i18n dictionary.</p>
+                </div>
+
+                <div class="module-card">
+                    <h3><span>main.py</span> <a href="https://github.com/simoscream/Cardioid/blob/main/main.py" target="_blank" class="repo-link">code</a></h3>
+                    <p id="mod-main">CLI entry point parsing command line arguments (`argparse`), constructing `StyleConfig` and `RenderConfig`, and routing execution to PNG, SVG, Series, or Video exporters.</p>
+                </div>
+
+                <div class="module-card">
+                    <h3><span>src/math_engine.py</span> <a href="https://github.com/simoscream/Cardioid/blob/main/src/math_engine.py" target="_blank" class="repo-link">code</a></h3>
+                    <p id="mod-math">Pure mathematical functions: `get_point_angle`, `get_point_coordinates`, `compute_destination_index`, `generate_all_points`, and `generate_chords`.</p>
+                </div>
+
+                <div class="module-card">
+                    <h3><span>src/config.py</span> <a href="https://github.com/simoscream/Cardioid/blob/main/src/config.py" target="_blank" class="repo-link">code</a></h3>
+                    <p id="mod-config">Dataclass configurations (`StyleConfig` and `RenderConfig`) defining colors, line widths, circle radius, title overlay settings, and canvas margins.</p>
+                </div>
+
+                <div class="module-card">
+                    <h3><span>src/renderers/</span> <a href="https://github.com/simoscream/Cardioid/tree/main/src/renderers" target="_blank" class="repo-link">code</a></h3>
+                    <p id="mod-renderers">Abstract `BaseRenderer` class with concrete implementations `PNGRenderer` (Pillow raster image) and `SVGRenderer` (W3C vector XML string builder).</p>
+                </div>
+
+                <div class="module-card">
+                    <h3><span>src/video_exporter.py</span> <a href="https://github.com/simoscream/Cardioid/blob/main/src/video_exporter.py" target="_blank" class="repo-link">code</a></h3>
+                    <p id="mod-video">FFmpeg subprocess wrapper compiling frame sequences into H.264 MP4 videos using glob pattern matching.</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 4. API Reference Table -->
+        <div class="section-card">
+            <h2 id="txt-sec4-title">🔌 4. API Reference Table</h2>
+            <p id="txt-sec4-p1">Summary of primary internal and browser/system APIs consumed across the codebase:</p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th id="th-api">API Name</th>
+                        <th id="th-target">Environment / Module</th>
+                        <th id="th-desc">Usage & Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>CanvasRenderingContext2D</code></td>
+                        <td>Browser / <code>web/index.html</code></td>
+                        <td id="api-canvas">Real-time 60 FPS drawing (`arc`, `lineTo`, `stroke`, `fillText`).</td>
+                    </tr>
+                    <tr>
+                        <td><code>MediaRecorder API</code></td>
+                        <td>Browser / <code>web/index.html</code></td>
+                        <td id="api-media">In-browser video recording (`video/mp4`, `video/webm`).</td>
+                    </tr>
+                    <tr>
+                        <td><code>Web Storage API</code></td>
+                        <td>Browser / All Pages</td>
+                        <td id="api-storage">Language preference persistence (`localStorage.getItem('cardioid_lang')`).</td>
+                    </tr>
+                    <tr>
+                        <td><code>Pillow (PIL.ImageDraw)</code></td>
+                        <td>Python / <code>png_renderer.py</code></td>
+                        <td id="api-pillow">Raster PNG generation with antialiased lines and alpha channel transparency.</td>
+                    </tr>
+                    <tr>
+                        <td><code>FFmpeg Subprocess CLI</code></td>
+                        <td>System / <code>video_exporter.py</code></td>
+                        <td id="api-ffmpeg">Compilation of PNG frame sequences into H.264 MP4 video.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- I18N DICTIONARY WITH LOCALSTORAGE PERSISTENCE -->
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'dark' });
+
+        const i18n = {
+            EN: {
+                nav_web: "← Web App",
+                nav_edu: "🎓 Educational Guide",
+                nav_manual: "📖 Manual & CLI",
+                nav_tests: "🧪 Test Report",
+                badge: "Architecture & System Design",
+                title: "Cardioid — Software Architecture Specification",
+                subtitle: "Complete architectural description, component interactions, module specifications, PlantUML class diagrams, and API reference.",
+                sec1_title: "📌 1. System Overview & Repository Reference",
+                sec1_p1: "The Cardioid Project is a dual-engine software suite designed for real-time visualization, vector rendering, frame sequence generation, and video compilation of modular multiplication tables geometry.",
+                th_attr: "Attribute", th_val: "Value / GitHub Location",
+                td_repo: "GitHub Repository", td_version: "Current Version Tag", td_web_url: "Live GitHub Pages URL", td_stack: "Technology Stack",
+                sec2_title: "🏗️ 2. High-Level System Architecture",
+                sec2_p1: "The architecture is split into two independent, complementary execution environments: the Client Web Canvas 2D Engine and the Python CLI Rendering Engine.",
+                sec22_title: "📐 2.2 PlantUML & Class Diagram",
+                sec22_p1: "Object-Oriented structure of configuration dataclasses, abstract renderers, concrete Pillow/SVG implementations, and batch exporters.",
+                plantuml_title: "📄 Official PlantUML Code Specification:",
+                sec3_title: "🧩 3. Software Modules Specification",
+                mod_web: "Standalone single-file 60 FPS HTML5 Canvas visualizer. Manages state, real-time animation loop, color pickers, PNG/SVG 1-click downloads, MediaRecorder video capture, and 7-language i18n dictionary.",
+                mod_main: "CLI entry point parsing command line arguments (argparse), constructing StyleConfig and RenderConfig, and routing execution to PNG, SVG, Series, or Video exporters.",
+                mod_math: "Pure mathematical functions: get_point_angle, get_point_coordinates, compute_destination_index, generate_all_points, and generate_chords.",
+                mod_config: "Dataclass configurations (StyleConfig and RenderConfig) defining colors, line widths, circle radius, title overlay settings, and canvas margins.",
+                mod_renderers: "Abstract BaseRenderer class with concrete implementations PNGRenderer (Pillow raster image) and SVGRenderer (W3C vector XML string builder).",
+                mod_video: "FFmpeg subprocess wrapper compiling frame sequences into H.264 MP4 videos using glob pattern matching.",
+                sec4_title: "🔌 4. API Reference Table",
+                sec4_p1: "Summary of primary internal and browser/system APIs consumed across the codebase:",
+                th_api: "API Name", th_target: "Environment / Module", th_desc: "Usage & Purpose",
+                api_canvas: "Real-time 60 FPS drawing (arc, lineTo, stroke, fillText).",
+                api_media: "In-browser video recording (video/mp4, video/webm).",
+                api_storage: "Language preference persistence (localStorage.getItem('cardioid_lang')).",
+                api_pillow: "Raster PNG generation with antialiased lines and alpha channel transparency.",
+                api_ffmpeg: "Compilation of PNG frame sequences into H.264 MP4 video."
+            },
+            FR: {
+                nav_web: "← App Web",
+                nav_edu: "🎓 Guide Pédagogique",
+                nav_manual: "📖 Manuel & CLI",
+                nav_tests: "🧪 Rapport de Tests",
+                badge: "Architecture & Conception Système",
+                title: "Cardioid — Spécification d'Architecture Logicielle",
+                subtitle: "Description architecturale complète, diagramme de classes PlantUML, spécifications des modules et référence des API.",
+                sec1_title: "📌 1. Vue d'Ensemble & Référence du Dépôt",
+                sec1_p1: "Le projet Cardioid est une suite logicielle à double moteur conçue pour la visualisation en temps réel, le rendu vectoriel, la génération de séries d'images et la compilation vidéo.",
+                th_attr: "Attribut", th_val: "Valeur / Emplacement GitHub",
+                td_repo: "Dépôt GitHub", td_version: "Tag de Version Actuelle", td_web_url: "URL GitHub Pages en Ligne", td_stack: "Technologies Utilisées",
+                sec2_title: "🏗️ 2. Architecture Système Haut Niveau",
+                sec2_p1: "L'architecture est séparée en deux environnements complémentaires : le Moteur Web Canvas 2D Navigateur et le Moteur de Rendu CLI Python.",
+                sec22_title: "📐 2.2 Diagramme de Classes PlantUML",
+                sec22_p1: "Structure orientée objet des dataclasses de configuration, des renderers abstraits et des exportateurs vidéo.",
+                plantuml_title: "📄 Spécification Officielle du Code PlantUML :",
+                sec3_title: "🧩 3. Spécification des Modules Logiciels",
+                mod_web: "Visualisateur Canvas HTML5 autonome à 60 FPS. Gère l'animation, les couleurs, les exports PNG/SVG, l'enregistreur vidéo MediaRecorder et le dictionnaire 7 langues.",
+                mod_main: "Point d'entrée CLI parsant les arguments (argparse), instanciant StyleConfig/RenderConfig et routant l'exécution vers PNG, SVG, Série ou Vidéo.",
+                mod_math: "Fonctions mathématiques pures : get_point_angle, get_point_coordinates, compute_destination_index, generate_all_points et generate_chords.",
+                mod_config: "Dataclasses de configuration (StyleConfig et RenderConfig) définissant les couleurs, épaisseurs, rayon du cercle et marges.",
+                mod_renderers: "Classe abstraite BaseRenderer avec implémentations PNGRenderer (Pillow) et SVGRenderer (générateur XML vectoriel).",
+                mod_video: "Module wrapper FFmpeg compilant les séries d'images PNG en vidéo MP4 H.264.",
+                sec4_title: "🔌 4. Tableau Référence des API",
+                sec4_p1: "Résumé des principales API système, navigateur et bibliothèque utilisées :",
+                th_api: "Nom de l'API", th_target: "Environnement / Module", th_desc: "Utilisation & Rôle",
+                api_canvas: "Rendu graphique temps réel 60 FPS (arc, lineTo, stroke).",
+                api_media: "Enregistrement vidéo dans le navigateur (video/mp4, video/webm).",
+                api_storage: "Persistance de la langue (localStorage.getItem('cardioid_lang')).",
+                api_pillow: "Génération d'images matricielles PNG avec antialiasing et transparence.",
+                api_ffmpeg: "Compilation des séquences d'images PNG en vidéo MP4."
+            },
+            ES: {
+                nav_web: "← App Web",
+                nav_edu: "🎓 Guía Educativa",
+                nav_manual: "📖 Manual y CLI",
+                nav_tests: "🧪 Reporte de Pruebas",
+                badge: "Arquitectura y Diseño de Sistema",
+                title: "Cardioid — Especificación de Arquitectura de Software",
+                subtitle: "Descripción arquitectónica completa, diagramas de clases PlantUML y referencia de API.",
+                sec1_title: "📌 1. Visión General del Sistema",
+                sec1_p1: "El proyecto Cardioid es una suite de software de doble motor para visualización y renderizado matemático.",
+                th_attr: "Atributo", th_val: "Valor / Ubicación GitHub",
+                td_repo: "Repositorio GitHub", td_version: "Etiqueta de Versión", td_web_url: "URL GitHub Pages", td_stack: "Tecnologías",
+                sec2_title: "🏗️ 2. Arquitectura de Alto Nivel",
+                sec2_p1: "La arquitectura se divide entre el motor Web Canvas 2D en navegador y el motor CLI en Python.",
+                sec22_title: "📐 2.2 Diagrama de Clases PlantUML",
+                sec22_p1: "Estructura orientada a objetos de clases de configuración, renderizadores y exportadores.",
+                plantuml_title: "📄 Especificación Oficial del Código PlantUML:",
+                sec3_title: "🧩 3. Especificación de Módulos",
+                mod_web: "Visualizador Canvas HTML5 a 60 FPS con soporte i18n y grabación de video.",
+                mod_main: "Punto de entrada CLI que gestiona argumentos y enrutamiento de renders.",
+                mod_math: "Funciones matemáticas puras de trigonometría y aritmética modular.",
+                mod_config: "Dataclasses de configuración de estilos y dimensiones.",
+                mod_renderers: "Renderizadores de imágenes PNG (Pillow) y SVG vectorial.",
+                mod_video: "Compilador de video MP4 mediante proceso secundario FFmpeg.",
+                sec4_title: "🔌 4. Referencia de API",
+                sec4_p1: "Resumen de API principales consumidas en el código:",
+                th_api: "Nombre de API", th_target: "Entorno / Módulo", th_desc: "Uso y Propósito",
+                api_canvas: "Dibujo en tiempo real a 60 FPS.",
+                api_media: "Grabación de video en el navegador.",
+                api_storage: "Persistencia de idioma de usuario.",
+                api_pillow: "Generación de imagen PNG en Python.",
+                api_ffmpeg: "Compilación de video MP4."
+            },
+            DE: {
+                nav_web: "← Web App",
+                nav_edu: "🎓 Bildungsführer",
+                nav_manual: "📖 Handbuch & CLI",
+                nav_tests: "🧪 Testbericht",
+                badge: "Architektur & Systemdesign",
+                title: "Cardioid — Software-Architekturspezifikation",
+                subtitle: "Vollständige Architekturbeschreibung, PlantUML-Klassendiagramme und API-Referenz.",
+                sec1_title: "📌 1. Systemübersicht",
+                sec1_p1: "Das Cardioid-Projekt ist eine Software-Suite zur Echtzeit-Visualisierung modulare Arithmetik.",
+                th_attr: "Attribut", th_val: "Wert / GitHub-Ort",
+                td_repo: "GitHub Repository", td_version: "Aktuelle Version", td_web_url: "Live GitHub Pages URL", td_stack: "Technologien",
+                sec2_title: "🏗️ 2. High-Level-Systemarchitektur",
+                sec2_p1: "Die Architektur unterteilt sich in die Browser Web Canvas 2D Engine und die Python CLI Engine.",
+                sec22_title: "📐 2.2 PlantUML Klassendiagramm",
+                sec22_p1: "Objektorientierte Struktur der Dataclasses, Renderer und Exporter.",
+                plantuml_title: "📄 Offizielle PlantUML-Code-Spezifikation:",
+                sec3_title: "🧩 3. Softwaremodul-Spezifikation",
+                mod_web: "60 FPS HTML5 Canvas Visualisierer mit i18n und Videoaufzeichnung.",
+                mod_main: "CLI-Einstiegspunkt für Argumentverarbeitung und Render-Routing.",
+                mod_math: "Reine mathematische Trigonometrie- und Modulo-Funktionen.",
+                mod_config: "Konfigurations-Dataclasses für Stile und Render-Einstellungen.",
+                mod_renderers: "PNG- (Pillow) und SVG-Vektor-Renderer.",
+                mod_video: "FFmpeg Video-Exporter für MP4-Kompilierung.",
+                sec4_title: "🔌 4. API-Referenztabelle",
+                sec4_p1: "Übersicht der verwendeten APIs:",
+                th_api: "API Name", th_target: "Umgebung / Modul", th_desc: "Zweck & Verwendung",
+                api_canvas: "Echtzeit 60 FPS Zeichnen.",
+                api_media: "In-Browser Videoaufnahme.",
+                api_storage: "Spracheinstellungen Speicherung.",
+                api_pillow: "Raster-PNG-Generierung.",
+                api_ffmpeg: "MP4-Videokompilierung."
+            },
+            AR: {
+                nav_web: "← تطبيق الويب",
+                nav_edu: "🎓 الدليل التعليمي",
+                nav_manual: "📖 الدليل والأوامر",
+                nav_tests: "🧪 تقرير الاختبارات",
+                badge: "معمارية وتصميم النظام",
+                title: "Cardioid — مواصفات معمارية البرمجيات",
+                subtitle: "الوصف المعماري الكامل، مخططات الفئات PlantUML، مواصفات البرمجيات، ومراجع الـ API.",
+                sec1_title: "📌 1. نظرة عامة على النظام ومراجع المستودع",
+                sec1_p1: "مشروع Cardioid هو مجموعة برمجية بمحركين مصممة للتجسيم في الوقت الفعلي والتصدير.",
+                th_attr: "الخاصية", th_val: "القيمة / موقع GitHub",
+                td_repo: "مستودع GitHub", td_version: "وسم الإصدار الحالي", td_web_url: "رابط GitHub Pages المباشر", td_stack: "التقنيات المستخدمة",
+                sec2_title: "🏗️ 2. المعمارية عالية المستوى",
+                sec2_p1: "تنقسم المعمارية إلى بيئتين: محرك Web Canvas 2D ومحرك Python CLI.",
+                sec22_title: "📐 2.2 مخطط الفئات PlantUML",
+                sec22_p1: "الهيكل الكائني لفئات التكوين والمحركات والمصدرين.",
+                plantuml_title: "📄 المواصفات البرمجية الرسمية لكود PlantUML:",
+                sec3_title: "🧩 3. مواصفات الوحدات البرمجية",
+                mod_web: "مجسّم Canvas HTML5 بـ 60 إطار في الثانية مع دعم 7 لغات وتسجيل الفيديو.",
+                mod_main: "نقطة دخول CLI لمعالجة الأوامر وتوجيه الرسوم.",
+                mod_math: "دوال رياضية بحتة لحساب الحساب النمطي والنقاط.",
+                mod_config: "فئات البيانات لتكوين الأنماط والأبعاد.",
+                mod_renderers: "محركات رسم صور PNG و SVG.",
+                mod_video: "مجمع فيديوهات MP4 باستخدام FFmpeg.",
+                sec4_title: "🔌 4. جدول مراجع الـ API",
+                sec4_p1: "ملخص أهم الـ APIs المستخدمة في المشروع:",
+                th_api: "اسم الـ API", th_target: "البيئة / الوحدة", th_desc: "الاستخدام والهدف",
+                api_canvas: "رسم متقدم بـ 60 FPS.",
+                api_media: "تسجيل الفيديو في المتصفح.",
+                api_storage: "حفظ اللغة المفضلة للمستخدم.",
+                api_pillow: "إنشاء صور PNG برمجياً.",
+                api_ffmpeg: "تجميع الفيديوهات بترميز H.264."
+            },
+            JP: {
+                nav_web: "← Web アプリ",
+                nav_edu: "🎓 学習ガイド",
+                nav_manual: "📖 マニュアル & CLI",
+                nav_tests: "🧪 テストレポート",
+                badge: "アーキテクチャ & システム設計",
+                title: "Cardioid — ソフトウェアアーキテクチャ仕様書",
+                subtitle: "Cardioid プロジェクトの全構成、PlantUML クラス図、モジュール仕様、および API リファレンス。",
+                sec1_title: "📌 1. システム概要 & リポジトリ参照",
+                sec1_p1: "Cardioid プロジェクトは、モジュラー乗算表のリアルタイム描画と動画エクスポートのためのデュアルエンジン・ソフトウェアスイートです。",
+                th_attr: "属性", th_val: "値 / GitHub 位置",
+                td_repo: "GitHub リポジトリ", td_version: "現在のバージョンタグ", td_web_url: "ライブ GitHub Pages URL", td_stack: "技術スタック",
+                sec2_title: "🏗️ 2. ハイレベル・システムアーキテクチャ",
+                sec2_p1: "ブラウザ Web Canvas 2D エンジンと Python CLI エンジンの 2 つの環境で構成されます。",
+                sec22_title: "📐 2.2 PlantUML クラス図",
+                sec22_p1: "設定データクラス、抽象レンダラー、およびエクスポーターのオブジェクト指向構造。",
+                plantuml_title: "📄 公式 PlantUML コード仕様：",
+                sec3_title: "🧩 3. ソフトウェアモジュール仕様",
+                mod_web: "60 FPS HTML5 Canvas ビジュアライザー（i18n & 録画機能付き）。",
+                mod_main: "CLI 引数を解析し描画処理をルーティングする Python エントリーポイント。",
+                mod_math: "三角関数およびモジュロ計算を行う純粋数学関数。",
+                mod_config: "スタイルやキャンバス設定を保持するデータクラス。",
+                mod_renderers: "PNG (Pillow) および SVG ベクター描画エンジン。",
+                mod_video: "FFmpeg を呼び出し MP4 動画を生成するモジュール。",
+                sec4_title: "🔌 4. API リファレンステーブル",
+                sec4_p1: "コードベースで使用されている主な API の概要：",
+                th_api: "API 名", th_target: "環境 / モジュール", th_desc: "用途および目的",
+                api_canvas: "リアルタイム 60 FPS 描画。",
+                api_media: "ブラウザ内動画録画。",
+                api_storage: "言語設定の永続化。",
+                api_pillow: "Python での PNG ラスター画像生成。",
+                api_ffmpeg: "MP4 動画へのコンパイル。"
+            },
+            CN: {
+                nav_web: "← Web 应用",
+                nav_edu: "🎓 原理教学指南",
+                nav_manual: "📖 使用手册 & CLI",
+                nav_tests: "🧪 测试报告",
+                badge: "架构与系统设计",
+                title: "Cardioid — 软件架构规范文档",
+                subtitle: "Cardioid 项目的完整架构描述、PlantUML 类图、模块规范及 API 参考。",
+                sec1_title: "📌 1. 系统概述与仓库参考",
+                sec1_p1: "Cardioid 项目是一个双引擎软件套件，旨在实现模乘法表几何的实时可视化、矢量渲染及视频编译。",
+                th_attr: "属性", th_val: "值 / GitHub 位置",
+                td_repo: "GitHub 仓库", td_version: "当前版本标签", td_web_url: "在线 GitHub Pages URL", td_stack: "技术栈",
+                sec2_title: "🏗️ 2. 高阶系统架构",
+                sec2_p1: "系统分为两个独立的互补环境：浏览器 Web Canvas 2D 引擎与 Python CLI 渲染引擎。",
+                sec22_title: "📐 2.2 PlantUML 类图规范",
+                sec22_p1: "配置数据类、抽象渲染器及导出器的面向对象类结构。",
+                plantuml_title: "📄 官方 PlantUML 代码规范：",
+                sec3_title: "🧩 3. 软件模块规范",
+                mod_web: "60 FPS 单文件 HTML5 Canvas 可视化工具，支持 i18n 与视频录制。",
+                mod_main: "解析命令行参数并分发渲染任务的 CLI 入口。",
+                mod_math: "纯数学三角函数与模算术计算模块。",
+                mod_config: "定义样式与渲染参数的数据类。",
+                mod_renderers: "PNG (Pillow) 栅格与 SVG 矢量渲染器。",
+                mod_video: "调用 FFmpeg 编译 MP4 视频的导出器。",
+                sec4_title: "🔌 4. API 参考表",
+                sec4_p1: "代码库中使用的主要 API 汇总：",
+                th_api: "API 名称", th_target: "环境 / 模块", th_desc: "用途与目标",
+                api_canvas: "实时 60 FPS 绘图。",
+                api_media: "浏览器内视频录制。",
+                api_storage: "用户语言偏好持久化。",
+                api_pillow: "Python 生成 PNG 图像。",
+                api_ffmpeg: "编译 MP4 视频文件。"
+            }
+        };
+
+        let currentLang = localStorage.getItem('cardioid_lang') || "EN";
+
+        function setLanguage(lang) {
+            if (!i18n[lang]) lang = "EN";
+            currentLang = lang;
+            localStorage.setItem('cardioid_lang', lang);
+            const dict = i18n[lang];
+
+            document.documentElement.dir = (lang === "AR") ? "rtl" : "ltr";
+            document.documentElement.lang = lang.toLowerCase();
+
+            const selectLang = document.getElementById('select-lang');
+            if (selectLang) selectLang.value = lang;
+
+            document.getElementById('txt-nav-web').textContent = dict.nav_web;
+            document.getElementById('txt-nav-edu').textContent = dict.nav_edu;
+            document.getElementById('txt-nav-manual').textContent = dict.nav_manual;
+            document.getElementById('txt-nav-tests').textContent = dict.nav_tests;
+            document.getElementById('txt-badge').textContent = dict.badge;
+            document.getElementById('txt-title').textContent = dict.title;
+            document.getElementById('txt-subtitle').textContent = dict.subtitle;
+            document.getElementById('txt-sec1-title').textContent = dict.sec1_title;
+            document.getElementById('txt-sec1-p1').textContent = dict.sec1_p1;
+            document.getElementById('th-attr').textContent = dict.th_attr;
+            document.getElementById('th-val').textContent = dict.th_val;
+            document.getElementById('td-repo').textContent = dict.td_repo;
+            document.getElementById('td-version').textContent = dict.td_version;
+            document.getElementById('td-web-url').textContent = dict.td_web_url;
+            document.getElementById('td-stack').textContent = dict.td_stack;
+            document.getElementById('txt-sec2-title').textContent = dict.sec2_title;
+            document.getElementById('txt-sec2-p1').textContent = dict.sec2_p1;
+            document.getElementById('txt-sec22-title').textContent = dict.sec22_title;
+            document.getElementById('txt-sec22-p1').textContent = dict.sec22_p1;
+            document.getElementById('txt-plantuml-title').textContent = dict.plantuml_title;
+            document.getElementById('txt-sec3-title').textContent = dict.sec3_title;
+            document.getElementById('mod-web').textContent = dict.mod_web;
+            document.getElementById('mod-main').textContent = dict.mod_main;
+            document.getElementById('mod-math').textContent = dict.mod_math;
+            document.getElementById('mod-config').textContent = dict.mod_config;
+            document.getElementById('mod-renderers').textContent = dict.mod_renderers;
+            document.getElementById('mod-video').textContent = dict.mod_video;
+            document.getElementById('txt-sec4-title').textContent = dict.sec4_title;
+            document.getElementById('txt-sec4-p1').textContent = dict.sec4_p1;
+            document.getElementById('th-api').textContent = dict.th_api;
+            document.getElementById('th-target').textContent = dict.th_target;
+            document.getElementById('th-desc').textContent = dict.th_desc;
+            document.getElementById('api-canvas').textContent = dict.api_canvas;
+            document.getElementById('api-media').textContent = dict.api_media;
+            document.getElementById('api-storage').textContent = dict.api_storage;
+            document.getElementById('api-pillow').textContent = dict.api_pillow;
+            document.getElementById('api-ffmpeg').textContent = dict.api_ffmpeg;
+        }
+
+        const selectLang = document.getElementById('select-lang');
+        if (selectLang) {
+            selectLang.addEventListener('change', () => {
+                setLanguage(selectLang.value);
+            });
+        }
+
+        setLanguage(currentLang);
+    </script>
+</body>
+</html>
