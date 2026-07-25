@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cardioid — Manual & Interactive CLI Builder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090d16;
+            --panel-bg: #111827;
+            --card-bg: #1f293d;
+            --accent-pink: #ec4899;
+            --accent-pink-glow: rgba(236, 72, 153, 0.3);
+            --accent-sky: #38bdf8;
+            --accent-sky-glow: rgba(56, 189, 248, 0.2);
+            --accent-green: #10b981;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: #374151;
+            --code-bg: #030712;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .lang-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .lang-select-box {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+
+        #select-lang {
+            background: transparent;
+            border: none;
+            color: var(--accent-sky);
+            font-weight: 600;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        #select-lang option {
+            background-color: var(--panel-bg);
+            color: var(--text-main);
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent-sky);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 0%, var(--accent-sky) 50%, var(--accent-pink) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 40px 0 20px 0;
+        }
+
+        .section-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .builder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .builder-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: var(--accent-sky);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input:focus {
+            border-color: var(--accent-sky);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            accent-color: var(--accent-pink);
+            width: 16px;
+            height: 16px;
+        }
+
+        .code-box {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        .code-content {
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-sky);
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-copy:hover {
+            border-color: var(--accent-pink);
+            color: var(--accent-pink);
+        }
+
+        .btn-copy.copied {
+            background-color: var(--accent-green);
+            color: #000;
+            border-color: var(--accent-green);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+            background-color: var(--panel-bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.85rem;
+        }
+
+        th {
+            background-color: var(--card-bg);
+            color: var(--accent-sky);
+            font-weight: 600;
+        }
+
+        code {
+            font-family: 'Fira Code', monospace;
+            background-color: var(--code-bg);
+            color: var(--accent-pink);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <div class="lang-bar">
+                <div class="lang-select-box">
+                    <label for="select-lang">🌐</label>
+                    <select id="select-lang">
+                        <option value="EN" selected>EN - English</option>
+                        <option value="FR">FR - Français</option>
+                        <option value="ES">ES - Español</option>
+                        <option value="DE">DE - Deutsch</option>
+                        <option value="AR">AR - العربية</option>
+                        <option value="JP">JP - 日本語</option>
+                        <option value="CN">CN - 中文</option>
+                    </select>
+                </div>
+            </div>
+            <span class="badge" id="txt-badge">Cardioid Project • Modular Arithmetic</span>
+            <h1 id="txt-title">Interactive CLI Manual & Command Generator</h1>
+            <p class="subtitle" id="txt-subtitle">Configure your geometric figures and modular arithmetic animations with title overlays and clean parameter-explicit output files.</p>
+        </header>
+
+        <!-- Section 1: Interactive Builder -->
+        <div class="builder-grid">
+            <div class="card">
+                <div class="card-title" id="txt-card-title-config">⚙️ Command Configuration</div>
+                
+                <div class="form-group">
+                    <label for="mode-select" id="lbl-mode">Generation Mode</label>
+                    <select id="mode-select">
+                        <option value="single">Single Render (Image PNG / SVG)</option>
+                        <option value="series">Series of Frames (PNG Sequence)</option>
+                        <option value="video">Complete Video (MP4 via FFmpeg)</option>
+                    </select>
+                </div>
+
+                <div id="single-opts">
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="table-val" id="lbl-table">Table (Multiplier n)</label>
+                            <input type="number" id="table-val" value="2.0" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="format-val" id="lbl-fmt">Output Format</label>
+                            <select id="format-val">
+                                <option value="png">PNG (Raster Image)</option>
+                                <option value="svg">SVG (Vectorial)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="series-opts" style="display: none;">
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label for="start-table" id="lbl-start-t">Start Table</label>
+                            <input type="number" id="start-table" value="2.0" step="0.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="end-table" id="lbl-end-t">End Table</label>
+                            <input type="number" id="end-table" value="10.0" step="0.5">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="step-table" id="lbl-step-t">Step</label>
+                        <input type="number" id="step-table" value="0.1" step="0.01">
+                    </div>
+                </div>
+
+                <div class="form-group-row">
+                    <div class="form-group">
+                        <label for="modulo-val" id="lbl-modulo">Modulo m (Points)</label>
+                        <input type="number" id="modulo-val" value="540" min="10">
+                    </div>
+                    <div class="form-group">
+                        <label for="title-pos" id="lbl-pos">Title Position</label>
+                        <select id="title-pos">
+                            <option value="right">Bottom Right</option>
+                            <option value="left">Bottom Left</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-title" checked>
+                        <span id="txt-chk-title">Show Title Overlay</span>
+                    </label>
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="show-labels">
+                        <span id="txt-chk-labels">Show Point Numbers</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Output Box -->
+            <div class="card">
+                <div class="card-title" id="txt-card-title-cmd">💻 Generated Command</div>
+                <div class="code-box">
+                    <button class="btn-copy" id="btn-copy">📋 Copy</button>
+                    <div class="code-content" id="command-output">python3 main.py --table 2.0 --modulo 540 --title-position right</div>
+                </div>
+                <p style="font-size: 0.82rem; color: var(--text-muted);" id="txt-cmd-desc">
+                    Paste this command into your terminal to run the Python rendering engine.
+                </p>
+            </div>
+        </div>
+
+        <!-- Section 2: Command Reference -->
+        <div class="section-header">
+            <h2 id="txt-ref-title">📚 Command Line Reference</h2>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th id="th-opt">Option</th>
+                    <th id="th-type">Type</th>
+                    <th id="th-desc">Description</th>
+                    <th id="th-def">Default</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>-t, --table</code></td>
+                    <td>Float</td>
+                    <td id="td-desc-t">Multiplication factor / Table (e.g. 2.0, 61.0)</td>
+                    <td>2.0</td>
+                </tr>
+                <tr>
+                    <td><code>-m, --modulo</code></td>
+                    <td>Int</td>
+                    <td id="td-desc-m">Modulo / Number of points around the circle</td>
+                    <td>200</td>
+                </tr>
+                <tr>
+                    <td><code>--title-position</code></td>
+                    <td>String</td>
+                    <td id="td-desc-pos">Identification title position (right | left)</td>
+                    <td>right</td>
+                </tr>
+                <tr>
+                    <td><code>--hide-title</code></td>
+                    <td>Flag</td>
+                    <td id="td-desc-hide">Hide the bottom title overlay</td>
+                    <td>False</td>
+                </tr>
+                <tr>
+                    <td><code>--video</code></td>
+                    <td>Flag</td>
+                    <td id="td-desc-vid">Compile animation frame sequence into MP4 video</td>
+                    <td>False</td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+
+    <!-- I18N DICTIONARY WITH ENGLISH DEFAULT -->
+    <script>
+        const i18n = {
+            EN: {
+                badge: "Cardioid Project • Modular Arithmetic",
+                title: "Interactive CLI Manual & Command Generator",
+                subtitle: "Configure your geometric figures and modular arithmetic animations with title overlays and clean parameter-explicit output files.",
+                config: "⚙️ Command Configuration",
+                cmd_box: "💻 Generated Command",
+                lbl_mode: "Generation Mode",
+                lbl_table: "Table (Multiplier n)",
+                lbl_fmt: "Output Format",
+                lbl_start_t: "Start Table",
+                lbl_end_t: "End Table",
+                lbl_step_t: "Step",
+                lbl_modulo: "Modulo m (Points)",
+                lbl_pos: "Title Position",
+                chk_title: "Show Title Overlay",
+                chk_labels: "Show Point Numbers",
+                copy: "📋 Copy",
+                copied: "✅ Copied!",
+                ref_title: "📚 Command Line Reference",
+                th_opt: "Option", th_type: "Type", th_desc: "Description", th_def: "Default"
+            },
+            FR: {
+                badge: "Projet Cardioid • Arithmétique Modulaire",
+                title: "Manuel & Générateur CLI Interactif",
+                subtitle: "Configurez vos figures géométriques et animations d'arithmétique modulaire avec incrustation du titre d'identification.",
+                config: "⚙️ Configuration de la Commande",
+                cmd_box: "💻 Commande Générée",
+                lbl_mode: "Mode de Génération",
+                lbl_table: "Table (Multiplicateur n)",
+                lbl_fmt: "Format de Sortie",
+                lbl_start_t: "Table Début",
+                lbl_end_t: "Table Fin",
+                lbl_step_t: "Pas",
+                lbl_modulo: "Modulo m (Points)",
+                lbl_pos: "Position Titre",
+                chk_title: "Afficher le Titre Incrusté",
+                chk_labels: "Afficher les Numéros de Points",
+                copy: "📋 Copier",
+                copied: "✅ Copié !",
+                ref_title: "📚 Référence des Commandes CLI",
+                th_opt: "Option", th_type: "Type", th_desc: "Description", th_def: "Défaut"
+            },
+            ES: {
+                badge: "Proyecto Cardioid • Aritmética Modular",
+                title: "Manual CLI Interactivo y Generador de Comandos",
+                subtitle: "Configure sus figuras geométricas y animaciones de aritmética modular.",
+                config: "⚙️ Configuración del Comando",
+                cmd_box: "💻 Comando Generado",
+                lbl_mode: "Modo de Generación",
+                lbl_table: "Tabla (Multiplicador n)",
+                lbl_fmt: "Formato de Salida",
+                lbl_start_t: "Tabla Inicio",
+                lbl_end_t: "Tabla Fin",
+                lbl_step_t: "Paso",
+                lbl_modulo: "Módulo m (Puntos)",
+                lbl_pos: "Posición Título",
+                chk_title: "Mostrar Título Superpuesto",
+                chk_labels: "Mostrar Números de Puntos",
+                copy: "📋 Copiar",
+                copied: "✅ ¡Copiado!",
+                ref_title: "📚 Referencia de Línea de Comandos",
+                th_opt: "Opción", th_type: "Tipo", th_desc: "Descripción", th_def: "Por Defecto"
+            },
+            DE: {
+                badge: "Cardioid Projekt • Modulare Arithmetik",
+                title: "Interaktives CLI-Handbuch & Befehlsgenerator",
+                subtitle: "Konfigurieren Sie Ihre geometrischen Figuren und modularen Arithmetik-Animationen.",
+                config: "⚙️ Befehlskonfiguration",
+                cmd_box: "💻 Generierter Befehl",
+                lbl_mode: "Generierungsmodus",
+                lbl_table: "Tabelle (Multiplikator n)",
+                lbl_fmt: "Ausgabeformat",
+                lbl_start_t: "Start-Tabelle",
+                lbl_end_t: "End-Tabelle",
+                lbl_step_t: "Schritt",
+                lbl_modulo: "Modulo m (Punkte)",
+                lbl_pos: "Titelposition",
+                chk_title: "Titelüberlagerung anzeigen",
+                chk_labels: "Punktnummern anzeigen",
+                copy: "📋 Kopieren",
+                copied: "✅ Kopiert!",
+                ref_title: "📚 Kommandozeilen-Referenz",
+                th_opt: "Option", th_type: "Typ", th_desc: "Beschreibung", th_def: "Standard"
+            },
+            AR: {
+                badge: "مشروع Cardioid • الحساب النمطي",
+                title: "دليل الأوامر التفاعلي ومولد الأوامر",
+                subtitle: "قم بتكوين الأشكال الهندسة والرسوم المتحركة للحساب النمطي.",
+                config: "⚙️ تكوين الأمر",
+                cmd_box: "💻 الأمر المنشأ",
+                lbl_mode: "وضع الإنشاء",
+                lbl_table: "الجدول (المضاعف n)",
+                lbl_fmt: "تنسيق الإخراج",
+                lbl_start_t: "بداية الجدول",
+                lbl_end_t: "نهاية الجدول",
+                lbl_step_t: "الخطوة",
+                lbl_modulo: "النموذج m (النقاط)",
+                lbl_pos: "موقع العنوان",
+                chk_title: "إظهار عنوان التعريف",
+                chk_labels: "إظهار أرقام النقاط",
+                copy: "📋 نسخ",
+                copied: "✅ تم النسخ!",
+                ref_title: "📚 مرجع سطر الأوامر",
+                th_opt: "الخيار", th_type: "النوع", th_desc: "الوصف", th_def: "الافتراضي"
+            },
+            JP: {
+                badge: "Cardioid プロジェクト • モジュラー算術",
+                title: "インタラクティブ CLI マニュアル & コマンド生成器",
+                subtitle: "幾何学図形とモジュラー算術アニメーションを設定します。",
+                config: "⚙️ コマンド設定",
+                cmd_box: "💻 生成されたコマンド",
+                lbl_mode: "生成モード",
+                lbl_table: "掛け算表 (乗数 n)",
+                lbl_fmt: "出力形式",
+                lbl_start_t: "開始表",
+                lbl_end_t: "終了表",
+                lbl_step_t: "ステップ",
+                lbl_modulo: "モジュロ m (点数)",
+                lbl_pos: "タイトルの位置",
+                chk_title: "タイトルオーバーレイを表示",
+                chk_labels: "点の番号を表示",
+                copy: "📋 コピー",
+                copied: "✅ コピー完了！",
+                ref_title: "📚 コマンドラインリファレンス",
+                th_opt: "オプション", th_type: "タイプ", th_desc: "説明", th_def: "デフォルト"
+            },
+            CN: {
+                badge: "Cardioid 项目 • 模算术",
+                title: "交互式 CLI 使用手册与命令生成器",
+                subtitle: "配置几何图形和模算术动画。",
+                config: "⚙️ 命令配置",
+                cmd_box: "💻 生成的命令",
+                lbl_mode: "生成模式",
+                lbl_table: "乘法表 (乘数 n)",
+                lbl_fmt: "输出格式",
+                lbl_start_t: "起始表",
+                lbl_end_t: "结束表",
+                lbl_step_t: "步长",
+                lbl_modulo: "模数 m (点数)",
+                lbl_pos: "标题位置",
+                chk_title: "显示标题叠加",
+                chk_labels: "显示点数字",
+                copy: "📋 复制",
+                copied: "✅ 已复制！",
+                ref_title: "📚 命令行参考",
+                th_opt: "选项", th_type: "类型", th_desc: "说明", th_def: "默认值"
+            }
+        };
+
+        function setLanguage(lang) {
+            if (!i18n[lang]) lang = "EN";
+            const dict = i18n[lang];
+
+            document.documentElement.dir = (lang === "AR") ? "rtl" : "ltr";
+            document.documentElement.lang = lang.toLowerCase();
+
+            document.getElementById('txt-badge').textContent = dict.badge;
+            document.getElementById('txt-title').textContent = dict.title;
+            document.getElementById('txt-subtitle').textContent = dict.subtitle;
+            document.getElementById('txt-card-title-config').textContent = dict.config;
+            document.getElementById('txt-card-title-cmd').textContent = dict.cmd_box;
+            document.getElementById('lbl-mode').textContent = dict.lbl_mode;
+            document.getElementById('lbl-table').textContent = dict.lbl_table;
+            document.getElementById('lbl-fmt').textContent = dict.lbl_fmt;
+            document.getElementById('lbl-start-t').textContent = dict.lbl_start_t;
+            document.getElementById('lbl-end-t').textContent = dict.lbl_end_t;
+            document.getElementById('lbl-step-t').textContent = dict.lbl_step_t;
+            document.getElementById('lbl-modulo').textContent = dict.lbl_modulo;
+            document.getElementById('lbl-pos').textContent = dict.lbl_pos;
+            document.getElementById('txt-chk-title').textContent = dict.chk_title;
+            document.getElementById('txt-chk-labels').textContent = dict.chk_labels;
+            document.getElementById('btn-copy').textContent = dict.copy;
+            document.getElementById('txt-ref-title').textContent = dict.ref_title;
+            document.getElementById('th-opt').textContent = dict.th_opt;
+            document.getElementById('th-type').textContent = dict.th_type;
+            document.getElementById('th-desc').textContent = dict.th_desc;
+            document.getElementById('th-def').textContent = dict.th_def;
+        }
+
+        const modeSelect = document.getElementById('mode-select');
+        const singleOpts = document.getElementById('single-opts');
+        const seriesOpts = document.getElementById('series-opts');
+        const outputDiv = document.getElementById('command-output');
+        const btnCopy = document.getElementById('btn-copy');
+        const selectLang = document.getElementById('select-lang');
+
+        selectLang.addEventListener('change', () => {
+            setLanguage(selectLang.value);
+        });
+
+        modeSelect.addEventListener('change', () => {
+            if (modeSelect.value === 'single') {
+                singleOpts.style.display = 'block';
+                seriesOpts.style.display = 'none';
+            } else {
+                singleOpts.style.display = 'none';
+                seriesOpts.style.display = 'block';
+            }
+            updateCommand();
+        });
+
+        const inputs = [
+            'mode-select', 'table-val', 'format-val', 'start-table', 'end-table',
+            'step-table', 'modulo-val', 'title-pos', 'show-title', 'show-labels'
+        ];
+
+        inputs.forEach(id => {
+            const elem = document.getElementById(id);
+            if (elem) {
+                elem.addEventListener('input', updateCommand);
+                elem.addEventListener('change', updateCommand);
+            }
+        });
+
+        function updateCommand() {
+            const mode = modeSelect.value;
+            const modulo = document.getElementById('modulo-val').value;
+            const pos = document.getElementById('title-pos').value;
+            const showTitle = document.getElementById('show-title').checked;
+            const showLabels = document.getElementById('show-labels').checked;
+
+            let cmd = 'python3 main.py';
+
+            if (mode === 'single') {
+                const table = document.getElementById('table-val').value;
+                const fmt = document.getElementById('format-val').value;
+                cmd += ` --table ${table} --modulo ${modulo}`;
+                if (fmt === 'svg') cmd += ` --format svg`;
+            } else if (mode === 'series') {
+                const start = document.getElementById('start-table').value;
+                const end = document.getElementById('end-table').value;
+                const step = document.getElementById('step-table').value;
+                cmd += ` --series --start-table ${start} --end-table ${end} --step ${step} --modulo ${modulo}`;
+            } else if (mode === 'video') {
+                const start = document.getElementById('start-table').value;
+                const end = document.getElementById('end-table').value;
+                const step = document.getElementById('step-table').value;
+                cmd += ` --video --start-table ${start} --end-table ${end} --step ${step} --modulo ${modulo}`;
+            }
+
+            if (pos !== 'right') cmd += ` --title-position ${pos}`;
+            if (!showTitle) cmd += ` --hide-title`;
+            if (showLabels) cmd += ` --show-labels`;
+
+            outputDiv.textContent = cmd;
+        }
+
+        btnCopy.addEventListener('click', () => {
+            navigator.clipboard.writeText(outputDiv.textContent).then(() => {
+                const dict = i18n[selectLang.value] || i18n.EN;
+                btnCopy.textContent = dict.copied;
+                btnCopy.classList.add('copied');
+                setTimeout(() => {
+                    btnCopy.textContent = dict.copy;
+                    btnCopy.classList.remove('copied');
+                }, 2000);
+            });
+        });
+
+        setLanguage("EN");
+        updateCommand();
+    </script>
+</body>
+</html>
