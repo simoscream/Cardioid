@@ -1122,7 +1122,12 @@
 
         // --- URL PARAMETER SERIALIZATION & SHARING ---
         function generateShareUrl() {
-            const baseUrl = window.location.origin + window.location.pathname;
+            let baseUrl;
+            if (window.location.protocol === 'file:') {
+                baseUrl = 'https://simoscream.github.io/Cardioid/web/index.html';
+            } else {
+                baseUrl = window.location.origin + window.location.pathname;
+            }
             const params = new URLSearchParams();
             params.set('t', Number.isInteger(state.table) ? state.table : state.table.toFixed(2));
             params.set('m', Math.max(1, parseInt(inputModulo ? inputModulo.value : 540) || 540));
